@@ -1714,8 +1714,13 @@ p {
     width: 20px;
     height: 20px;
 }
+
+/* .diamondcol label input {
+    width: 20px;
+    height: 20px;
+} */
+
 .diamondcol label input[type="radio"]:checked:after {
   background-color: red;
   border: 2px solid red;
-  
 }
