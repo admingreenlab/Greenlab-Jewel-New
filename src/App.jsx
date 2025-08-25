@@ -22,6 +22,7 @@ import {
   IonItem,
   IonInput,
   IonToast,
+  IonApp
 } from '@ionic/react';
 // import { useLocation } from "react-router-dom";
 import { IonMenuToggle } from '@ionic/react';
@@ -55,6 +56,9 @@ import samplePDF1 from "../public/footer/size.pdf";
 import samplePDF2 from "../public/footer/finding.pdf";
 import NotFound from './pages/NotFound';
 import { person } from "ionicons/icons";
+import { App as CapacitorApp } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
+
 function apps() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [homeDetails, setHomeDetails] = useState([]);
@@ -80,6 +84,15 @@ function apps() {
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
   const isFetching = useRef(false)
+
+  const openPdf = async (url) => {
+    try {
+      await Browser.open({ url });
+    } catch (error) {
+      console.error('Failed to open PDF:', error);
+    }
+  }
+
 
   const handleSubmit = async (event) => {
     const form = event.currentTarget;
@@ -264,9 +277,37 @@ function apps() {
     setIsAuthenticated(isAuthenticatedR());
   }, []);
 
+const lastBackPress = useRef(0);
+
+  useEffect(() => {
+    let backListener;
+
+    const setupBackButtonListener = async () => {
+      backListener = await CapacitorApp.addListener('backButton', () => {
+        const now = Date.now();
+        if (now - lastBackPress.current < 2000) {
+          CapacitorApp.exitApp();
+        } else {
+          lastBackPress.current = now;
+          console.log('Press back again to exit');
+        }
+      });
+    };
+
+    setupBackButtonListener();
+
+    return () => {
+      if (backListener && typeof backListener.remove === 'function') {
+        backListener.remove(); // ✅ safely remove
+      }
+    };
+  }, []);
+
+
   const hideTabBarRoutes = ['/login', '/registerhere', '/video', '/videoshow/:id', '/forgets'];
   return (
     <>
+     <IonApp>
 
       <IonReactRouter>
         <DataProvider>
@@ -453,8 +494,8 @@ function apps() {
                         </div>
                       </ion-router-link>
 
-                      <ion-router-link href={samplePDF1} target="_blank">
-                        <div className='d-flex' style={{ gap: '10px', marginBottom: '7px' }}>
+                      <ion-router-link >
+                        <div  onClick={() => openPdf('https://master.greenlabjewels.com/footer/size.pdf')} className='d-flex' style={{ gap: '10px', marginBottom: '7px' }}>
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#4c3226" class="bi bi-aspect-ratio" viewBox="0 0 16 16">
                             <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 12.5zM1.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z" />
                             <path d="M2 4.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1H3v2.5a.5.5 0 0 1-1 0zm12 7a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H13V8.5a.5.5 0 0 1 1 0z" />
@@ -462,8 +503,8 @@ function apps() {
                           <span style={{ color: "#f3a41c" }}>Size</span>
                         </div>
                       </ion-router-link>
-                      <ion-router-link href={samplePDF2} target="_blank">
-                        <div className='d-flex' style={{ gap: '10px', marginBottom: '7px' }}>
+                      <ion-router-link >
+                        <div onClick={() => openPdf('https://master.greenlabjewels.com/footer/finding.pdf')} className='d-flex' style={{ gap: '10px', marginBottom: '7px' }}>
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#4c3226" class="bi bi-infinity" viewBox="0 0 16 16">
                             <path d="M5.68 5.792 7.345 7.75 5.681 9.708a2.75 2.75 0 1 1 0-3.916ZM8 6.978 6.416 5.113l-.014-.015a3.75 3.75 0 1 0 0 5.304l.014-.015L8 8.522l1.584 1.865.014.015a3.75 3.75 0 1 0 0-5.304l-.014.015zm.656.772 1.663-1.958a2.75 2.75 0 1 1 0 3.916z" />
                           </svg>
@@ -575,6 +616,8 @@ function apps() {
           </div>
         )}
       </>
+
+      </IonApp>
     </>
   );
 }

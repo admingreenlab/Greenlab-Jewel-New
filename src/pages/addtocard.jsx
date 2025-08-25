@@ -595,7 +595,7 @@ const RadioPage = () => {
                             </div>
                             <div className='main-color'>
                               <h6>Metal Color</h6>
-                              <IonRadioGroup value={selectedMetal} onIonChange={e => setSelectedMetal(e.detail.value)} expand="block" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0',justifyContent:'space-between' }}>
+                              <IonRadioGroup class='radio-group-wrapper-main' value={selectedMetal} onIonChange={e => setSelectedMetal(e.detail.value)} expand="block" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0', justifyContent: 'space-between' }}>
                                 {["ROSE", "WHITE", "YELLOW"].map((metal) => (
                                   <IonRadio
                                     key={metal}
@@ -621,25 +621,41 @@ const RadioPage = () => {
                                 ))}
                               </IonRadioGroup>
                             </div>
-                            <div className="diamondcolmin">
+
+                            <div className="diamondcolmin" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
                               <h6>Diamond Quality</h6>
-                              <IonRadioGroup
-                                value={selectedQuality}
-                                onIonChange={(e) => setSelectedQuality(e.detail.value)}
-                                style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}
-                              >
-                                {diamondGroup && diamondGroup.length > 0 ? (
-                                  diamondGroup.map((item, i) => (
-                                    item.data.map((ele, j) => (
-                                      <div
-                                        key={`${i}-${j}`}
-                                        className='diamondcol'
-                                        style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}
+                              <div className='radio-group-main'>
+
+                              
+                              {diamondGroup.length > 0 ? (
+                                diamondGroup.map((item, i) =>
+                                  item.data.map((ele, j) => (
+                                    <div
+                                      key={`${i}-${j}`}
+                                      className="diamondcol"
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        margin: '0',
+                                      }}
+                                    >
+                                      <label
+                                        htmlFor={`diamond-${i}-${j}`}
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '10px',
+                                          margin: '0',
+                                        }}
                                       >
-                                        <IonRadio
+                                        <input
+                                          type="radio"
+                                          id={`diamond-${i}-${j}`}
+                                          name="diamondQuality"
                                           value={ele}
-                                          labelPlacement="end"
-                                          color="secondary"
+                                          checked={selectedQuality === ele}
+                                          onChange={() => setSelectedQuality(ele)}
                                           style={{
                                             color: '#4c3226',
                                             padding: '5px 6px',
@@ -648,19 +664,18 @@ const RadioPage = () => {
                                             borderRadius: '24px',
                                             border: '1px solid #a7a7a7',
                                             transition: 'background-color 0.3s ease',
-                                            width: '100%',
+                                            accentColor: '#4c3226',
                                           }}
-                                        >
-                                          <span>{ele}</span>
-                                        </IonRadio>
-                                      </div>
-                                    ))
+                                        />
+                                        <span>{ele}</span>
+                                      </label>
+                                    </div>
                                   ))
-                                ) : (
-                                  <p>No diamond group data available</p>
-                                )}
-                              </IonRadioGroup>
-
+                                )
+                              ) : (
+                                <p>No diamond group data available</p>
+                              )}
+                              </div>
                             </div>
                             <div>
                               <IonCol size='12' style={{}}>
@@ -705,13 +720,13 @@ const RadioPage = () => {
                                     // interface="popover"
                                     style={{
                                       borderRadius: '10px',
-                                      maxWidth:'100%',
+                                      maxWidth: '100%',
                                       fontSize: '14px',
                                       border: '1px solid #7f7d7d',
                                       backgroundColor: '#fff6ec',
                                       color: 'rgb(76 50 38)',
                                       padding: '10px 5px',
-                                      margin:'15px -5px'
+                                      margin: '15px -5px'
                                     }}
                                   // size="small"
                                   >

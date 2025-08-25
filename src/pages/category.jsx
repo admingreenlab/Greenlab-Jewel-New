@@ -284,6 +284,7 @@ function Category() {
             minpointer: 0,
             maxpointer: 0,
             attr: [],
+            shape: [],
         });
         setCategoryFilter([]);
         setSelectedCollection([]);
@@ -595,6 +596,7 @@ function Category() {
                                                                 //checked={selectedCategories.includes(subcategory._id)}
                                                                 checked={Array.isArray(CategoryFilter) && CategoryFilter.includes(subcategory._id)}
                                                                 onIonChange={() => handleCategoryChange(subcategory._id)}
+                                                                disabled={loading}
                                                             />
                                                             <span style={{ margin: '1px 0px 0px 10px' }}>{subcategory.name}</span>
                                                         </div>
@@ -682,6 +684,7 @@ function Category() {
 
                                                                     onIonChange={(event) => handleShapeCheckboxChange(event, item)}
                                                                     checked={filterDetails?.shape?.includes(item)}
+                                                                    disabled={loading}
                                                                 />
                                                                 <span style={{ margin: '1px 0px 0px 10px', textTransform: 'uppercase' }}>{item}</span>
                                                             </div>
@@ -702,6 +705,7 @@ function Category() {
                                                             style={{ marginBottom: '10px' }}
                                                             checked={Array.isArray(selectedCollection) && selectedCollection.includes(CollectionFilter._id)}
                                                             onIonChange={() => handleCollectionChange(CollectionFilter._id)}
+                                                            disabled={loading}
                                                         >
                                                             <span>{CollectionFilter.name}</span>
                                                         </IonCheckbox>

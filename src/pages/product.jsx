@@ -553,7 +553,7 @@ function Product() {
                                                     </div>
                                                 </IonRadioGroup> */}
                                                 <h6>Diamond Quality</h6>
-                                                <IonRadioGroup value={selectedQuality} onIonChange={(e) => setSelectedQuality(e.detail.value)} style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}>
+                                                <IonRadioGroup class='radio-group-wrapper-main' value={selectedQuality} onIonChange={(e) => setSelectedQuality(e.detail.value)} style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}>
                                                     {diamondGroup?.map((item, i) => (
                                                         <div key={i} className='diamondcol' style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}>
                                                             <IonRadio

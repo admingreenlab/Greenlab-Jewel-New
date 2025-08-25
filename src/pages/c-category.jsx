@@ -95,7 +95,7 @@ function CategoryPage() {
                 itemId: item._id,
                 quantity: 1,
                 metal: `${item.metal}-${selectedMetalForItem}-GOLD`.toUpperCase(),
-                diamondQuality: 'DEF VVS+',
+                diamondQuality: 'DE VVS',
                 colorstone: item.colorstone,
                 size: item.size,
                 itemtype: item.itemtype,

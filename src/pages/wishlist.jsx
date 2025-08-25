@@ -76,7 +76,7 @@ const WishlistPage = () => {
                           <IonThumbnail slot="start">
                             <img alt="Silhouette of mountains" src={IMG_PATH + item?.thumbnailImage} />
                           </IonThumbnail>
-                          <IonCardTitle style={{ color: 'black', justifyContent: 'center', display: 'flex', fontSize: '12px', marginRight: 'auto' }}>
+                          <IonCardTitle style={{ color: 'black', justifyContent: 'center', display: 'flex', fontSize: '12px', marginRight: 'auto', textTransform:'uppercase'}}>
                             {item?.description}
                           </IonCardTitle>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
