@@ -99,7 +99,9 @@ span {
 ion-button {
     font-family: 'circular' !important;
 }
-
+input:focus-visible {
+    outline: none !important;
+}
 .item-native {
     font-family: "Poppins", sans-serif !important;
 }
@@ -719,7 +721,7 @@ ion-checkbox {
 
 ion-checkbox::part(container) {
     border-radius: 0;
-    padding: 2px;
+    padding: 1px;
     border: 2px solid #4c3226;
 }
 
@@ -868,12 +870,21 @@ ion-radio.pink {
 }
 ion-radio.pink::part(container){
     background-color: #eebb9b;
+    margin: 0px 10px 0px 0px;
+   width: 25px;
+    height: 25px;   
 }
 ion-radio.silver::part(container){
     background-color: #c9c9c9;
+    width: 25px;
+    height: 25px;  
 }
 ion-radio.yellow::part(container){
     background-color: #e4bb6a;
+    margin: 0px 0px 0px 10px;
+    width: 25px;
+    height: 25px;  
+    
 }
 :host(.radio-checked) .radio-icon{
     border-color: rgba(0, 0, 0, 0.603);
@@ -949,21 +960,22 @@ ion-button.addticaed {
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
     border-radius: 10px 10px 0 0;
     transition: bottom 0.3s ease-in-out;
-    z-index: 9;
+    z-index: 999;
     overflow: scroll;
-    padding-bottom: 98px;
+    padding-bottom:250px;
     max-width: 616px;
     left: 50%;
     transform: translate(-50%, 0%);
     top: auto;
     margin-top: 0px;
-    overflow: scroll;
 }
 .offcanvas.show {
     bottom: 0;
-    top: 73px;
+    top: 40px;
     transition: 1.3s;
 }
+
+
 
 .content {
     padding: 20px;
@@ -1442,7 +1454,7 @@ h5:empty {
 
     .badge {
         font-size: 12px !important;
-        padding: 3px 3px;
+        padding: 5px 5px;
     }
     
     img.twominimg ,.thumblineimage a img{
@@ -1496,6 +1508,8 @@ h5:empty {
         width: 100%;
         max-width: 200px;
         border-radius: 15px;
+        height: 180px;
+        margin-top: 20px;
     }
 
     img.freem253 {
@@ -1769,3 +1783,4 @@ p {
     padding: 10px;
 
 }
+

@@ -203,9 +203,9 @@ function Apps() {
     setLoading(true);
     try {
       const response = await jwtAuthAxios.get(`client/dashboard`);
-      setHomeDetails(response?.data.data.sec[0].data || []);
+      setHomeDetails(response?.data?.data?.sec[0]?.data || []);
     } catch (error) {
-      console.error("Error fetching home data:", error);
+      console?.error("Error fetching home data:", error);
       setError(error);
     } finally {
       setLoading(false);
@@ -239,8 +239,8 @@ function Apps() {
           <IonTabs id="main-content">
             <IonRouterOutlet>
             <Route exact path="/">
-  <Redirect to="/home" />
-</Route>
+              <Redirect to="/home" />
+            </Route>
               <Route path="/register" component={Register} exact={true} />
 
               <Route
@@ -249,12 +249,13 @@ function Apps() {
                 exact={true}
               />
               
-<Route path="/home" render={() => (
-  
-        <HomePage />
-  
-  
-)} exact={true} />
+              {/* <Route path="/home" render={() => (
+                      <HomePage />
+              )} exact={true} /> */}
+
+              <Route path="/home" render={() => (
+                isAuthenticated ? <HomePage /> : <Redirect to="/login" />
+              )} exact={true} />
               
               <Route path="/c-category/:id" render={() => (
                 isAuthenticated ? <Ccategorypage /> : <Redirect to="/login" />

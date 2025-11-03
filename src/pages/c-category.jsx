@@ -181,12 +181,12 @@ function CategoryPage() {
             <div style={{ margin: '20px' }}></div>
 
             <IonContent color="primary">
-            <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+            {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                         <IonRefresherContent
                             pullingIcon={chevronDownCircleOutline}
                             refreshingSpinner="circles"
                         ></IonRefresherContent>
-                    </IonRefresher>
+                    </IonRefresher> */}
                 <IonGrid>
                     <IonRow>
                         <IonCol>
@@ -303,7 +303,7 @@ function CategoryPage() {
                                                     gap: '5px',
                                                     justifyContent: 'space-between'
                                                 }}>
-                                                    <IonButton fill="clear" size="large" onClick={() => {
+                                                    <IonButton fill="clear" size="large"  onClick={() => {
                                                         handleAddToCart(item);
                                                     }}>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" fill="#67686d" class="bi bi-cart3" viewBox="0 0 16 16">

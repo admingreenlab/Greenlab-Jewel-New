@@ -24,6 +24,9 @@ import {
     IonRefresher, IonRefresherContent,
     IonBreadcrumbs,
     IonBreadcrumb,
+    IonRadioGroup,
+    IonRadio,
+    IonIcon
 } from '@ionic/react';
 import { useParams } from "react-router-dom";
 import { IonCol, IonGrid, IonRow, IonTabButton } from '@ionic/react';
@@ -41,6 +44,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setFilter } from '../store/actions';
 import { chevronDownCircleOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
+import { ellipsisHorizontalOutline, gridOutline, listOutline } from 'ionicons/icons';
+import companyLogo from '../../public/img/logo.svg';
 
 function Category() {
     const history = useHistory();
@@ -70,12 +75,18 @@ function Category() {
         maxpointer: 0,
         attr: [], shape: []
     });
-    const [sortOrder, setSortOrder] = useState("asc");
     const [maxattr, setMaxttr] = useState({});
     const [maxctswts, setMaxctswts] = useState(null);
     const [maxGramWt, setMaxGramWt] = useState(null);
     const [shape, setShape] = useState([])
+    const [sortOrder, setSortOrder] = useState("asc");
     const [sortctswts, setSortctswts] = useState("");
+    const [showSortModal, setShowSortModal] = useState(false);
+    const [showLayoutModal, setShowLayoutModal] = useState(false);
+    const [layout, setLayout] = useState('grid'); // 'grid' or 'list'
+    const [loadedImages, setLoadedImages] = useState({});
+
+
 
     const fetchCategoryData = async (filterflag) => {
         if (isFetching.current) return;
@@ -178,11 +189,12 @@ function Category() {
     };
 
     const handleSelectChange = (value) => {
-        const [order, ctWts] = value.split('-');
+        const [order, ctWts] = value.split("-");
         setSortOrder(order || "");
         setSortctswts(ctWts || "");
         setPage(1);
-    };
+        setShowSortModal(false);
+      };
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -231,12 +243,12 @@ function Category() {
             fetchCategoryData();
 
         }
-    }, [id, page, CategoryFilter, selectedCollection, pageSize, sortOrder]);
+    }, [id, page, CategoryFilter, selectedCollection, pageSize, sortOrder, sortctswts]);
 
-    const handleSortChange = (order) => {
-        setSortOrder(order);
-        setPage(1);
-    };
+    // const handleSortChange = (order) => {
+    //     setSortOrder(order);
+    //     setPage(1);
+    // };
     useEffect(() => {
         if (pendingFetch) {
             fetchCategoryData();
@@ -305,15 +317,6 @@ function Category() {
         }, 1500); // Signal that the refresh is complete
     };
 
-    // useEffect(() => {
-    //     console.log("filterDetails", filterDetails);
-    // }, [filterDetails])
-
-    // useEffect(() => {
-    //     jwtAuthAxios.get(`/master/tags/shapes`)
-    //         .then(response => setShape(response.data[0]?.data))
-    //         .catch(error => console.error('Error fetching synonyms:', error));
-    // }, []);
 
     const handleShapeCheckboxChange = (event, item) => {
         const { checked } = event.target;
@@ -343,6 +346,10 @@ function Category() {
     console.log("upper");
     contentRef.current?.scrollToTop(1000); // 500ms smooth
   }
+
+
+
+  
     return (
         <IonPage>
      
@@ -351,16 +358,11 @@ function Category() {
                 <div style={{ margin: '50px' }}></div>
 
                 <IonContent color="primary" ref={contentRef}>
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-                        <IonRefresherContent
-                            pullingIcon={chevronDownCircleOutline}
-                            refreshingSpinner="circles"
-                        ></IonRefresherContent>
-                    </IonRefresher>
+            
                     <IonGrid>
                         <IonRow>
                             <IonCol>
-                                <Swiper className='main-toslider' style={{ marginBottom: '20px', height: '200px' }}
+                                {/* <Swiper className='main-toslider' style={{ marginBottom: '20px', height: '200px' }}
                                     spaceBetween={20}
                                     slidesPerView={3}
                                     breakpoints={{
@@ -421,56 +423,206 @@ function Category() {
                                             style={{ width: '100%', height: '100%', maxwidth: '180px', background: '#fff6ec', margin: '0', objectFit: 'contain', borderRadius: '9px', borderRadius: '9px', overflow: 'hidden' }}
                                         ></IonImg>
                                     </SwiperSlide>
-                                </Swiper>
+                                </Swiper> */}
                             </IonCol>
                         </IonRow>
                        
-                        <div>
+                        <div style={{ marginTop:'30px'}}> 
                             <h5 class="text-center mb-5 element" style={{ marginBottom: '20px' }}>{itemname}  Category </h5>
                         </div>
                         <IonBreadcrumbs>
-                                                              <IonBreadcrumb href="/home">Home</IonBreadcrumb>
-                                                             
-                                                               <IonBreadcrumb >{itemname}</IonBreadcrumb>
-                                                            </IonBreadcrumbs>
+                                        <IonBreadcrumb href="/home">Home</IonBreadcrumb>
+                                        
+                                        <IonBreadcrumb >{itemname}</IonBreadcrumb>
+                                    </IonBreadcrumbs>
 
-                        <IonCol size='12'>
-                            <div style={{ display: 'flex', justifyContent:'space-between' }}>
-                            <select
-                                className="form-select form-select-main"
-                                style={{ width: 'auto', margin: '0 10px 0 0' }}
-                                value={`${sortOrder}-${sortctswts}`}
-                                onChange={(e) => handleSelectChange(e.target.value)}
-                            >
-                                <option value="asc-">Sort by Style NO ASC</option>
-                                <option value="desc-">Sort by Style NO DESC</option>
-                                <option value="-min">Sort by Min CtWts</option>
-                                <option value="-max">Sort by Max CtWts</option>
-                            </select>
+                                        <IonCol
+                                            size="12"
+                                            style={{
+                                                position: "sticky",
+                                                top: 22,
+                                                backgroundColor: "#fff", 
+                                                zIndex: 9,
+                                                padding: "10px 10px",
+                                                display: "flex",
+                                                justifyContent: "center", 
+                                                boxShadow: "0 2px 2px rgba(0,0,0,0.1)",
+                                                margin:'20px 0px'
+                                            }}
+                                            >
+                                            <div
+                                                style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "15px", 
+                                                }}
+                                            >
+                                            
+                                                <button
+                                                className="sort-btn"
+                                                onClick={() => setShowSortModal(true)}
+                                                style={{
+                                                    backgroundColor: "#fff",
+                                                    color: "#6b4b38",
+                                                    border: "none",
+                                                    borderRadius: "6px",
+                                                    padding: "6px 14px",
+                                                    fontSize: "14px",
+                                                    cursor: "pointer",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "4px",
+                                                    textTransform: "uppercase",
+                                                
+                                                }}
+                                                >
+                                                Sort
+                                                <ion-icon name="swap-vertical-outline"></ion-icon>
+                                                </button>
+
+
+                                                <span style={{ color: "#4c3226" }}>|</span>
+
+
+                                                <button
+                                                onClick={toggleOffcanvas}
+                                                style={{
+                                                    backgroundColor: "#fff",
+                                                    color: "#6b4b38",
+                                                    border: "none",
+                                                    borderRadius: "6px",
+                                                    padding: "6px 14px",
+                                                    fontSize: "14px",
+                                                    cursor: "pointer",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "4px",
+                                                    textTransform: "uppercase",
+                                            
+                                                }}
+                                                >
+                                                Filter
+                                                <ion-icon name="filter-outline" ></ion-icon>
+                                                </button>
+
+                                            
+                                                <span style={{ color: "#4c3226" }}>|</span>
+
+                                                <select
+                                                id="simple-select"
+                                                value={pageSize}
+                                                onChange={handlePageSizeChange}
+                                                style={{
+                                                    padding: "6px 12px",
+                                                    borderRadius: "6px",
+                                                    border: "none",
+                                                    fontSize: "14px",
+                                                    backgroundColor: "#fff",
+                                                    color: "#6b4b38",
+                                                    cursor: "pointer",
+                                                
+                                                }}
+                                                >
+                                                <option value="24">24</option>
+                                                <option value="48">48</option>
+                                                <option value="72">72</option>
+                                                <option value="100">100</option>
+                                                </select>
+                                                <span style={{ color: "#4c3226" }}>|</span>
+                                                <button
+                                                onClick={() => setShowLayoutModal(true)}
+                                                style={{
+                                                    backgroundColor: "#fff",
+                                                    color: "#6b4b38",
+                                                    border: "none",
+                                                    borderRadius: "6px",
+                                                    padding: "6px 14px",
+                                                    fontSize: "17px",
+                                                    cursor: "pointer",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "4px",
+                                                    textTransform: "uppercase",
+                                                }}
+                                            >
+    
+                                            <ion-icon name="grid-outline"></ion-icon>
+                                        </button>
+
+                                            </div>
+                        </IonCol>
+
+                        <IonModal
+                            isOpen={showLayoutModal}
+                            onDidDismiss={() => setShowLayoutModal(false)}
+                            initialBreakpoint={0.3}
+                            breakpoints={[0, 0.3, 0.5]}
+                            style={{ '--height': '80%' }}
+                        >
+                        <div style={{ padding: '40px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', background:'#fff' }}>
                             
-                            <div>
-                            <select
-                                id="simple-select"
-                                value={pageSize}
-                                onChange={handlePageSizeChange}
-                                style={{
-                                    padding: '8px',
-                                    borderRadius: '4px',
-                                    
-                                    border: '1px solid #ccc',
-                                    fontSize: '16px',
-                                    width: '65px',
-                                    backgroundColor: '#4c3226'
+                            <div 
+                                style={{ textAlign: 'center', cursor: 'pointer' }} 
+                                onClick={() => {
+                                    setLayout('grid');
+                                    setShowLayoutModal(false);
                                 }}
                             >
-                                <option value="24">24</option>
-                                <option value="48">48</option>
-                                <option value="72">72</option>
-                                <option value="100">100</option>
-                            </select>
+                                <IonIcon icon={gridOutline} style={{ fontSize: '40px', color: '#6b4b38' }} />
+                                <p>Grid Layout</p>
                             </div>
+
+                            <div 
+                                style={{ textAlign: 'center', cursor: 'pointer' }} 
+                                onClick={() => {
+                                    setLayout('list');
+                                    setShowLayoutModal(false);
+                                }}
+                            >
+                                <IonIcon icon={listOutline} style={{ fontSize: '40px', color: '#6b4b38' }} />
+                                <p>List Layout</p>
                             </div>
-                        </IonCol>     <div className='main-catagory'>
+
+                        </div>
+                    </IonModal>
+
+                        <IonModal
+                            isOpen={showSortModal}
+                            onDidDismiss={() => setShowSortModal(false)}
+                            initialBreakpoint={0.5}
+                            breakpoints={[0, 0.5, 0.75]}
+                            style={{ '--height': '80%' , }} 
+                            
+                        >
+                            <div style={{ padding: "40px" , background:'#fff'}}>
+                            <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Sort Options</h3>
+
+                            <IonRadioGroup
+                                value={`${sortOrder}-${sortctswts}`}
+                                onIonChange={(e) => handleSelectChange(e.detail.value)}
+                            >
+                                <IonList>
+                                <IonItem>
+                                    <IonLabel>Style No (Ascending)</IonLabel>
+                                    <IonRadio slot="start" value="asc-" />
+                                </IonItem>
+                                <IonItem>
+                                    <IonLabel>Style No (Descending)</IonLabel>
+                                    <IonRadio slot="start" value="desc-" />
+                                </IonItem>
+                                <IonItem>
+                                    <IonLabel>Min Carats</IonLabel>
+                                    <IonRadio slot="start" value="-min" />
+                                </IonItem>
+                                <IonItem>
+                                    <IonLabel>Max Carats</IonLabel>
+                                    <IonRadio slot="start" value="-max" />
+                                </IonItem>
+                                </IonList>
+                            </IonRadioGroup>
+                            </div>
+                        </IonModal>   
+                        <div className='main-catagory'>
                             <IonRow>
                                 <IonCol>
                                     <h5></h5>
@@ -488,13 +640,46 @@ function Category() {
                                         const redirectTo = hasSubItems ? `/c-category/${item._id}` : `/product/${item._id}`;
 
                                         return (
-                                            <IonCol size-md='4' size-sm='6' size='12' key={item._id}>
+                                            <IonCol size-md='4' size-sm='6' size={layout === 'grid' ? '6' : '12'}  key={item._id}>
                                                 <div className='main-card-ctgy' style={{ marginBottom: '30px' }} onClick={() => history.push(redirectTo)}>
                                                     
-                                                        <div className='main-card-top'>
+                                                        {/* <div className='main-card-top'>
                                                             <img src={hoveredItemId === item._id ? hoveredImage : IMG_PATH + item?.thumbnailImage} alt="ig145" />
                                                             <span className='igsticky'>{hoveredItemId === item._id ? selectedSku : item.sku}</span>
-                                                        </div>
+                                                        </div> */}
+                                                        <div className='main-card-top' style={{ position: 'relative' }}>
+                                                  {!loadedImages[item._id] && (
+                                                    <div 
+                                                    style={{ 
+                                                        width: '100%', 
+                                                        height: '200px', 
+                                                        display: 'flex', 
+                                                        justifyContent: 'center', 
+                                                        alignItems: 'center', 
+                                                        backgroundColor: '#f0f0f0', 
+                                                        borderRadius: '8px' 
+                                                    }}
+                                                    >
+                                                    <img 
+                                                        
+                                                        src={companyLogo}
+                                                        alt="Company Logo" 
+                                                        style={{ width: '70px', height: '70px', opacity: 0.5 }} 
+                                                    />
+                                                    </div>
+                                                )}
+
+                                                <img
+                                                    src={hoveredItemId === item._id ? hoveredImage : IMG_PATH + item?.thumbnailImage}
+                                                    alt="ig145"
+                                                    style={{ display: loadedImages[item._id] ? 'block' : 'none', width: '100%', height: '200px', borderRadius: '8px' }}
+                                                    onLoad={() => setLoadedImages(prev => ({ ...prev, [item._id]: true }))}
+                                                />
+
+                                                <span className='igsticky'>
+                                                    {hoveredItemId === item._id ? selectedSku : item.sku}
+                                                </span>
+                                                </div>
                                                
                                                     <div className='main-card-bottom'>
                                                         <div>
@@ -508,7 +693,7 @@ function Category() {
                                                         <div className='ctstop'>
                                                             <span>CTS:</span>
                                                         </div>
-                                                        <div style={{ width: '80%', margin: '0px 0px 0px 20px' }}>
+                                                        <div style={{ width: '80%', margin: '0px 0px 0px -10px' }}>
                                                             <div style={{ width: '100%', maxWidth: "250px" }}>
                                                                 <div className='right'>
                                                                     {/* <Swiper style={{ margin: '4px 4px' }} spaceBetween={5} slidesPerView={4}>
@@ -583,13 +768,7 @@ function Category() {
                             </IonRow>
 
 
-                            <IonButton className='right_bottom_fix' shape='round' size='large' color='secondary' onClick={toggleOffcanvas}>
-                                {isOpen ? (
-                                    <ion-icon name="close-outline" slot="icon-only"></ion-icon>
-                                ) : (
-                                    <ion-icon name="filter-outline" slot="icon-only"></ion-icon>
-                                )}
-                            </IonButton>
+                     
                                 <IonButton className='left_bottom_fix' shape='round' size='large' color='secondary' onClick={handleupper}>
                                         <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
                                 </IonButton>
@@ -597,7 +776,7 @@ function Category() {
                                 <div className="content">
                                     <div color='secondary'>
                                         <div className='topbtn'>
-                                            <div style={{display:"flex", alignItems:"center",justifyContent:"space-between",    borderBottom: "1px solid rgb(255 216 174 / 22%)"}}>
+                                            <div style={{display:"flex", alignItems:"center",justifyContent:"space-between",  paddingBottom:"10px" ,  borderBottom: "1px solid rgb(255 216 174 / 22%)"}}>
                                                 <div>
                                                     <span>Filter by:</span>
                                                 </div>
@@ -630,6 +809,7 @@ function Category() {
                                                                 //checked={selectedCategories.includes(subcategory._id)}
                                                                 checked={Array.isArray(CategoryFilter) && CategoryFilter.includes(subcategory._id)}
                                                                 onIonChange={() => handleCategoryChange(subcategory._id)}
+                                                                disabled={loading}
                                                             />
                                                             <span style={{ margin: '1px 0px 0px 10px' }}>{subcategory.name}</span>
                                                         </div>
@@ -717,6 +897,7 @@ function Category() {
                                                                                                     
                                                                     onIonChange={(event) => handleShapeCheckboxChange(event, item)}
                                                                     checked={filterDetails?.shape?.includes(item)}
+                                                                    disabled={loading}
                                                                 />
                                                                 <span style={{ margin: '1px 0px 0px 10px', textTransform: 'uppercase' }}>{item}</span>
                                                             </div>
@@ -737,6 +918,7 @@ function Category() {
                                                             style={{ marginBottom: '10px' }}
                                                             checked={Array.isArray(selectedCollection) && selectedCollection.includes(CollectionFilter._id)}
                                                             onIonChange={() => handleCollectionChange(CollectionFilter._id)}
+                                                            disabled={loading}
                                                         >
                                                             <span>{CollectionFilter.name}</span>
                                                         </IonCheckbox>
@@ -896,6 +1078,7 @@ function Category() {
                                     </div>
                                 </div>
                             </div>
+                            
                             <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                                 <button
                                     onClick={handlePreviousPage}

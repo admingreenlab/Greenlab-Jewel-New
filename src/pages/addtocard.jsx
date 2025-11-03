@@ -364,12 +364,12 @@ const RadioPage = () => {
       </IonHeader>
       <Header />
       <IonContent color="primary" style={{ paddingBottom: '80x', marginTop: '100px' }}>
-        <IonRefresher slot="fixed" onIonRefresh={handleRefresh} >
+        {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh} >
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
             refreshingSpinner="circles"
           ></IonRefresherContent>
-        </IonRefresher>
+        </IonRefresher> */}
         <h4 className="text-center mb-5 element" style={{ marginTop: '90px' }}>add to Card</h4>
         {cartDetails?.items?.length === 0 || cartDetails?.message ? (
           <div
@@ -540,6 +540,7 @@ const RadioPage = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         flexFlow: 'wrap',
+                                        justifyContent: 'center',
                                       }}
                                     >
                                       {item?.item?.wgt14k?.toFixed(2)} Grams
@@ -578,6 +579,7 @@ const RadioPage = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         flexFlow: 'wrap',
+                                        justifyContent: 'center',
                                       }}
                                     >
                                       {item?.item?.wgt18k?.toFixed(2)} Grams
@@ -603,11 +605,10 @@ const RadioPage = () => {
                                     className="btn btn-default"
                                     value={metal}
                                     color='secondary'
-                                    labelPlacement="fixed"
-                                    alignment="center"
-                                    style={{ color: 'black', marginRight: '0', maxWidth: '100px' }}
+                                    labelPlacement="fixed"                                 
+                                    style={{ color: 'black', marginRight: '10px', maxWidth: '80px', }}
                                   >
-                                    <div style={{ width: '80%' }}>
+                                    <div style={{ width: '60%' }}>
                                       <span className="option-label">
                                         <IonImg className='slider-img '
                                           src={`/img/color-${metal?.toLowerCase()}.svg`}
@@ -627,7 +628,7 @@ const RadioPage = () => {
                               <IonRadioGroup
                                 value={selectedQuality}
                                 onIonChange={(e) => setSelectedQuality(e.detail.value)}
-                                style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}
+                                style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0', }}
                               >
                                 {diamondGroup && diamondGroup?.length > 0 ? (
                                   diamondGroup?.map((item, i) => (
@@ -650,6 +651,7 @@ const RadioPage = () => {
                                             border: '1px solid #a7a7a7',
                                             transition: 'background-color 0.3s ease',
                                             width: '100%',
+                                            marginTop:'5px'
                                           }}
                                         >
                                           <span>{ele}</span>
@@ -675,7 +677,7 @@ const RadioPage = () => {
                                       style={{
                                         borderRadius: '10px',
                                         marginTop:'10px',
-                                        fontSize: '14px',
+                                        fontSize: '15px',
                                         border: '1px solid #7f7d7d',
                                         width: "100%",
                                         backgroundColor: '#fff6ec',
@@ -706,8 +708,8 @@ const RadioPage = () => {
                                     // interface="popover"
                                     style={{
                                       borderRadius: '10px',
-
-                                      fontSize: '14px',
+                                      marginTop:'10px',
+                                      fontSize: '15px',
                                       border: '1px solid #7f7d7d',
                                       backgroundColor: '#fff6ec',
                                       color: 'rgb(76 50 38)',
@@ -729,7 +731,7 @@ const RadioPage = () => {
                               </IonCol>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              <IonButton onClick={(e) => handleSaveChanges(e, index)} style={{ width: '100%', margin: '15px 0', background: '#f3a41c' }} expand="full">Save</IonButton>
+                              <IonButton onClick={(e) => handleSaveChanges(e, index)} style={{ width: '100%', margin: '15px 0', background: '#f3a41c', }} expand="full">Save</IonButton>
                               <IonButton onClick={() => setOpenModalId(null)} style={{ width: '100%', margin: '15px 0', background: '#f3a41c' }} expand="full">Close</IonButton>
                             </div>
                           </div>
@@ -749,7 +751,7 @@ const RadioPage = () => {
               duration={2000}
             />
             <div>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', textTransform: 'uppercase', }}>
                 <IonButton color='secondary' onClick={toggleDropdown}>
                   Quotation Details
                 </IonButton>
@@ -836,7 +838,7 @@ const RadioPage = () => {
                   <form onSubmit={handleSubmit}>
                     <IonButton expand="full" type="submit" style={{ background: '#feddb2', letterSpacing: '0.1px', marginTop: '10px', color: '#4c3226', display: 'block' }} >
                       Confirm Order
-                      <span style={{ fontSize: '10px' }}>(Ask for Quotation)</span>
+                      <span style={{ fontSize: '13px' }}> (Ask for Quotation)</span>
                     </IonButton>
                   </form>
                 </IonCardContent>

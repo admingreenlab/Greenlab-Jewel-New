@@ -12,8 +12,9 @@ const jwtAuthAxios = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  baseURL: BACKEND_APP_URL,
+  baseURL: 'https://masterapi.greenlabjewels.com',
 });
+
 
 
 jwtAuthAxios.interceptors.request.use(

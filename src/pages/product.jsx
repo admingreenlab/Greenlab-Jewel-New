@@ -606,7 +606,7 @@ function Product() {
                                                     </div>
                                                 </IonRadioGroup> */}
                                                 <h6>Diamond Quality</h6>
-                                                <IonRadioGroup value={selectedQuality} onIonChange={(e) => setSelectedQuality(e.detail.value)} style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}>
+                                                <IonRadioGroup value={selectedQuality} onIonChange={(e) => setSelectedQuality(e.detail.value)} style={{ display: 'flex',  alignItems: 'center', gap: '10px', margin: '0' }}>
                                                     {diamondGroup?.map((item, i) => (
                                                         <div key={i} className='diamondcol' style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}>
                                                             <IonRadio
@@ -619,9 +619,11 @@ function Product() {
                                                                     backgroundColor: selectedQuality === item ? 'rgb(255 230 202)' : 'rgb(255 246 236)',
                                                                     cursor: 'pointer',
                                                                     width: '100%',
+                                                                    marginTop:'10px',
+    
                                                                 }}
                                                             >
-                                                                <span>{item}</span>
+                                                                <span >{item}</span>
                                                             </IonRadio>
                                                         </div>
                                                     ))}
@@ -670,7 +672,7 @@ function Product() {
                                                             value={selectSize}
                                                             onChange={(e) => handleSizeChange(e)}
                                                             style={{
-                                                                fontSize: '14px',
+                                                                fontSize: '16px',
                                                                 border: '1px solid #7f7d7d',
                                                                 backgroundColor: '#fff6ec',
                                                                 color: 'rgb(76 50 38)',
@@ -695,7 +697,7 @@ function Product() {
                                                             value={selectedFindings || (findings.length > 0 ? findings[0].finding : "")}
                                                             onChange={(e) => handleFindingsChange(e)}
                                                             style={{
-                                                                fontSize: '14px',
+                                                                fontSize: '15px',
                                                                 border: '1px solid #7f7d7d',
                                                                 backgroundColor: '#fff6ec',
                                                                 color: 'rgb(76 50 38)',
@@ -825,7 +827,7 @@ function Product() {
                                                                 {sidectwt?.toFixed(2)} Total Cts
                                                             </a>
                                                         </div>
-                                                        <div>*Approx. Weight</div>
+                                                        <div style={{fontSize:'14px'}}>*Approx. Weight</div>
                                                         <div style={{ textAlign: 'center' }}>
                                                             <div
                                                                 style={{

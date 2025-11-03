@@ -16,13 +16,16 @@ import {
     IonImg,
     IonFooter,
     IonButtons,
-    IonRefresher, IonRefresherContent,
+    IonRefresher, IonRefresherContent,IonLoading
 } from '@ionic/react';
 import { Tooltip } from 'react-tooltip'
 import { camera } from 'ionicons/icons';
 import jwtAuthAxios from "../service/jwtAuth";
 import { useHistory } from 'react-router-dom';
 import { chevronDownCircleOutline } from 'ionicons/icons';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { FileOpener } from '@awesome-cordova-plugins/file-opener';
+
 
 const Videojewal = () => {
     const [selectedOption, setSelectedOption] = useState("");
@@ -35,6 +38,7 @@ const Videojewal = () => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [hoveredItemId, setHoveredItemId] = useState(null);
     const [selectAll, setSelectAll] = useState(false);
+    const [loadings, setLoadings] = useState(false);
 
     const fetchVideoData = async () => {
         try {
@@ -94,31 +98,77 @@ const Videojewal = () => {
     };
 
     const handlePDFDownload = async () => {
+        setLoadings(true);
+      
         try {
-            const idsToDownload = selectedItems.length > 0 ? selectedItems : data.map(item => item._id);
-
-            const response = await jwtAuthAxios.post('/master/downloadpdf', {
-                ids: idsToDownload,
-                category: selectedOption
-            }, { responseType: 'blob' }); // Notice the change
-            
-            if (response.status === 200) {
-                const url = window.URL.createObjectURL(new Blob([response.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'video_files.pdf');
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                window.URL.revokeObjectURL(url); // Clean up URL object
-            } else {
-                console.error('Failed to download PDF:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error downloading PDF:', error);
+          const idsToDownload = selectedItems.length > 0 ? selectedItems : data.map(item => item._id);
+      
+          const response = await jwtAuthAxios.post(
+            '/master/downloadpdf',
+            {
+              ids: idsToDownload,
+              category: selectedOption,
+            },
+            { responseType: 'blob' }
+          );
+      
+          if (response.status === 200) {
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+      
+            const base64data = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                if (typeof reader.result === 'string') {
+                  const base64 = reader.result.split(',')[1];
+                  resolve(base64);
+                } else {
+                  reject(new Error('FileReader did not return a string'));
+                }
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+      
+            const fileName = `video_files_${Date.now()}.pdf`;
+      
+            await Filesystem.writeFile({
+              path: fileName,
+              data: base64data,
+              directory: Directory.Documents,
+            });
+      
+            const fileUriResult = await Filesystem.getUri({
+              directory: Directory.Documents,
+              path: fileName,
+            });
+      
+            const path = fileUriResult.uri;
+      
+            setLoadings(false); // Dismiss spinner before sharing
+      
+            // Wait a tiny bit to ensure UI updates
+            await new Promise(resolve => setTimeout(resolve, 300));
+      
+            // Share PDF (works on iOS)
+            await Share.share({
+              title: 'Share PDF',
+              text: 'Here is the PDF file you requested.',
+              url: path,
+              dialogTitle: 'Share this PDF',
+            });
+      
+            console.log('Share dialog shown successfully');
+          } else {
+            setLoadings(false);
+            console.error('Failed to download PDF:', response.statusText);
+          }
+        } catch (error) { 
+          setLoadings(false);
+          console.error('Error downloading PDF:', error);
         }
-    };
-
+      };
+      
+    
 
     const handleRefresh = async (event) => {
         await fetchVideoData();
@@ -151,12 +201,12 @@ const Videojewal = () => {
     return (
         <IonPage>
             <IonContent style={{ background: "rgba(188, 119, 0, 0.07)" }}>
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '20px' }}>
+                {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '20px' }}>
                     <IonRefresherContent
                         pullingIcon={chevronDownCircleOutline}
                         refreshingSpinner="circles"
                     ></IonRefresherContent>
-                </IonRefresher>
+                </IonRefresher> */}
                 <div className="pb-3" style={{marginTop:'70px'}}>
                     <IonGrid>
                         <IonRow className="ion-align-items-center mb-4">
@@ -205,6 +255,11 @@ const Videojewal = () => {
                                     </div>
                                     <IonButton color='secondary' style={{ height: '40px', width: '40px' }} onClick={handlePDFDownload}>
                                         <ion-icon name="download-outline" slot="icon-only" ></ion-icon>
+                                        <IonLoading
+                                            isOpen={loadings}
+                                            message="Downloading PDF..."
+                                            spinner="circles"
+                                            />
                                     </IonButton>
                                 </div>
                             </IonCol>

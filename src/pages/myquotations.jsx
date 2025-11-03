@@ -138,12 +138,12 @@ function Product() {
                 <h1>home</h1>
             </IonHeader>
             <IonContent color="primary" style={{ paddingBottom: '80x', marginBottom: '100px', marginTop: '10px' }}>
-            <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '20px' }}>
+            {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '20px' }}>
                     <IonRefresherContent
                         pullingIcon={chevronDownCircleOutline}
                         refreshingSpinner="circles"
                     ></IonRefresherContent>
-                </IonRefresher>
+                </IonRefresher> */}
                 <div style={{ marginTop: '90px' }}>
                     <h5 class="text-center mb-5 element">My quotations</h5>
                 </div>
@@ -160,7 +160,7 @@ function Product() {
                                                 <p>{moment(quotation.date).format('DD/MM/YY')}</p>
                                                 <ion-router-link onClick={() => handleViewQuotation(quotation)}>
                                                     <IonButton fill='clear'>
-                                                        <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+                                                        <ion-icon slot="icon-only" name="eye-outline" style={{color:'#fff'}}></ion-icon>
                                                     </IonButton>
                                                 </ion-router-link>
                                             </IonItem>
