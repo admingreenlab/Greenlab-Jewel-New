@@ -35,7 +35,7 @@ function Head() {
     const { wishData } = useContext(DataContext);
     const cartItems = useSelector(state => state?.items?.cart?.items);
     const totalQuantity = cartItems ? cartItems?.reduce((total, item) => total + item?.quantity, 0) : 0;
-
+    const [hideBottom, setHideBottom] = useState(false);
 
     // const fetchHomeData = async () => {
     //     setLoading(true);
@@ -60,7 +60,21 @@ function Head() {
     //     fetchHomeData();
     // }, []);
 
+    useEffect(() => {
+        let initialHeight = window.innerHeight;
 
+        const handleResize = () => {
+            // If the window height decreases by more than 150px, keyboard is probably open
+            if (window.innerHeight < initialHeight - 150) {
+                setHideBottom(true);
+            } else {
+                setHideBottom(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     return (
         <>
@@ -114,6 +128,7 @@ function Head() {
                         Logout</a>
                 </div>
             )}
+              {!hideBottom && (
 
             <div className='bottombtm-min'>
                 <div className='bottombtm'>
@@ -148,6 +163,7 @@ function Head() {
                     </a>
                 </div>
             </div>
+             )} 
         </>
     );
 }

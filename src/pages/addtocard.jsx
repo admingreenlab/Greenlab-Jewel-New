@@ -117,6 +117,7 @@ const RadioPage = () => {
   };
 
 
+
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
@@ -148,6 +149,23 @@ const RadioPage = () => {
     }
   };
 
+  const handleFocus = (e) => {
+    const container = document.querySelector('.bottom-modal-content'); // modal scroll container
+    setTimeout(() => {
+      if (container && e.target) {
+        const inputRect = e.target.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+  
+        // Scroll so input is roughly centered in modal
+        const scrollTop =
+          container.scrollTop + (inputRect.top - containerRect.top) - containerRect.height / 2 + inputRect.height / 2;
+  
+        container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+      }
+    }, 250); // Slight delay to allow mobile keyboard to open
+  };
+  
+  
 
   const handleSaveChanges = (e, index) => {
     const updatedItem = {
@@ -276,11 +294,26 @@ const RadioPage = () => {
     });
   };
 
+  const [emailError, setEmailError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+  
     setForm((prevForm) => ({ ...prevForm, [name]: value }));
+  
+    // Live email validation
+    if (name === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        setEmailError("Please enter a valid email address.");
+      } else {
+        setEmailError("");
+      }
+    }
   };
+  
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -495,6 +528,12 @@ const RadioPage = () => {
                                 style={{ color: 'black', width: '100%', padding: '8px', borderRadius: '5px', border: '1px solid #ccc', outline: 'none', resize: 'none' }}
                                 value={item?.message || ''}
                                 onChange={(e) => handleTypeMessage(item?.item?._id, e, index)}
+                                onFocus={(e) => {
+                                  // Scroll to top
+                                  setTimeout(() => {
+                                    e.target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                  }, 300); // wait for keyboard
+                                }}
                               ></textarea>
 
                             </div>
@@ -624,112 +663,114 @@ const RadioPage = () => {
                               </IonRadioGroup>
                             </div>
                             <div className="diamondcolmin">
-                              <h6>Diamond Quality</h6>
-                              <IonRadioGroup
-                                value={selectedQuality}
-                                onIonChange={(e) => setSelectedQuality(e.detail.value)}
-                                style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0', }}
-                              >
-                                {diamondGroup && diamondGroup?.length > 0 ? (
-                                  diamondGroup?.map((item, i) => (
-                                    item?.data?.map((ele, j) => (
-                                      <div
-                                        key={`${i}-${j}`}
-                                        className='diamondcol'
-                                        style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}
-                                      >
-                                        <IonRadio
-                                          value={ele}
-                                          labelPlacement="end"
-                                          color="secondary"
-                                          style={{
-                                            color: '#4c3226',
-                                            padding: '5px 6px',
-                                            backgroundColor: selectedQuality === ele ? 'rgb(255 230 202)' : 'rgb(255 246 236)',
-                                            cursor: 'pointer',
-                                            borderRadius: '24px',
-                                            border: '1px solid #a7a7a7',
-                                            transition: 'background-color 0.3s ease',
-                                            width: '100%',
-                                            marginTop:'5px'
-                                          }}
-                                        >
-                                          <span>{ele}</span>
-                                        </IonRadio>
-                                      </div>
-                                    ))
-                                  ))
-                                ) : (
-                                  <p>No diamond group data available</p>
-                                )}
-                              </IonRadioGroup>
-
-                            </div>
-                            <div>
-                              <IonCol size='12' style={{}}>
-                                {sortedSizes?.length > 0 &&
-                                  sortedSizes[0]?.sizes &&
-                                  sortedSizes[0]?.sizes?.length > 0 && (
-                                    <select
-                                      value={selectSize}
-                                      placeholder="Select Size"
-                                      onChange={(e) => handleSizeChange(e)}
-                                      style={{
-                                        borderRadius: '10px',
-                                        marginTop:'10px',
-                                        fontSize: '15px',
-                                        border: '1px solid #7f7d7d',
-                                        width: "100%",
-                                        backgroundColor: '#fff6ec',
-                                        color: 'rgb(76 50 38)',
-                                        padding: '12px 15px',
-                                        margin: "10px 0"
-                                      }}
-                                    >
-                                      {sortedSizes[0]?.sizes?.map(
-                                        (size, i) => (
-                                          <option
-                                            key={size?._id}
-                                            value={size?.size}
-                                          >
-                                            {size?.size}
-                                          </option>
-                                        )
-                                      )}
-
-                                    </select>
-                                  )}
-                                {findings?.length > 0 && (
-                                  <select
-                                    value={selectedFindings || ""}
-                                    placeholder="Select Size"
-                                    // label-placement="floating"
-                                    onChange={(e) => handleFindingsChange(e)}
-                                    // interface="popover"
-                                    style={{
-                                      borderRadius: '10px',
-                                      marginTop:'10px',
-                                      fontSize: '15px',
-                                      border: '1px solid #7f7d7d',
-                                      backgroundColor: '#fff6ec',
-                                      color: 'rgb(76 50 38)',
-                                      padding: '0px 20px'
-                                    }}
-                                  // size="small"
+                          <h6>Diamond Quality</h6>
+                          <div className="radio-group">
+                            {diamondGroup && diamondGroup.length > 0 ? (
+                              diamondGroup.map((item, i) =>
+                                item?.data?.map((ele, j) => (
+                                  <label
+                                    key={`${i}-${j}`}
+                                    className={`radio-button ${selectedQuality === ele ? 'selected' : ''}`}
+                                    style={{width:'40%'}}
                                   >
-                                    {findings?.map((finding, i) => (
-                                      <option
-                                        key={finding?._id}
-                                        value={finding?.finding}
-                                      >
-                                        {finding?.finding}
-                                      </option>
-                                    ))}
+                                    <input
+                                      type="radio"
+                                      name="diamondQuality"
+                                      value={ele}
+                                      checked={selectedQuality === ele}
+                                      onChange={() => setSelectedQuality(ele)}
+                                    
+                                    />
+                                    <span>{ele}</span>
+                                  </label>
+                                ))
+                              )
+                            ) : (
+                              <p>No diamond group data available</p>
+                            )}
+                          </div>
+                        </div>
 
-                                  </select>
-                                )}
-                              </IonCol>
-                            </div>
+                        <div>
+  <IonCol size='12'>
+    {/* Size Dropdown */}
+    {sortedSizes?.length > 0 &&
+      sortedSizes[0]?.sizes &&
+      sortedSizes[0]?.sizes?.length > 0 && (
+        <>
+          <label
+            style={{
+              fontWeight: '500',
+              fontSize: '16px',
+              color: 'rgb(76 50 38)',
+              display: 'block',
+            }}
+          >
+            Select Size
+          </label>
+          <select
+            value={selectSize}
+            onChange={(e) => handleSizeChange(e)}
+            style={{
+              marginTop: '5px',
+              fontSize: '15px',
+              border: '1px solid #7f7d7d',
+              width: '100%',
+              backgroundColor: '#fff6ec',
+              color: 'rgb(76 50 38)',
+              padding: '12px 15px',
+              margin: '10px 0',
+              width: '50%',
+            }}
+          >
+            {sortedSizes[0]?.sizes?.map((size) => (
+              <option key={size?._id} value={size?.size}>
+                {size?.size}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+
+    {/* Findings Dropdown */}
+    {findings?.length > 0 && (
+      <>
+        <label
+          style={{
+            fontWeight: '500',
+            fontSize: '16px',
+            color: 'rgb(76 50 38)',
+            marginBottom: '5px',
+            display: 'block',
+          }}
+        >
+          Select Finding
+        </label>
+        <select
+          value={selectedFindings || ''}
+          onChange={(e) => handleFindingsChange(e)}
+          style={{
+            marginTop: '5px',
+            fontSize: '15px',
+            border: '1px solid #7f7d7d',
+            backgroundColor: '#fff6ec',
+            color: 'rgb(76 50 38)',
+            padding: '10px 15px',
+            width: '70%',
+            borderRadius: '10px',
+          }}
+        >
+          {findings?.map((finding) => (
+            <option key={finding?._id} value={finding?.finding}>
+              {finding?.finding}
+            </option>
+          ))}
+        </select>
+      </>
+    )}
+  </IonCol>
+</div>
+
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <IonButton onClick={(e) => handleSaveChanges(e, index)} style={{ width: '100%', margin: '15px 0', background: '#f3a41c', }} expand="full">Save</IonButton>
                               <IonButton onClick={() => setOpenModalId(null)} style={{ width: '100%', margin: '15px 0', background: '#f3a41c' }} expand="full">Close</IonButton>
@@ -761,91 +802,117 @@ const RadioPage = () => {
         )}
 
 
-        {showDropdown && (
-          <div className='profileque'>
-            <div className='profileque-1'>
-              <div style={{ fontSize: '24px', justifyContent: 'end', padding: '0', display: 'flex', marginBottom: '-14px', marginRight: '10px', marginTop: '10px' }}>
-                <ion-icon name="close-outline" onClick={closeDropdown} style={{ color: '#000' }}></ion-icon>
-              </div>
-              <div className="profile" style={{ marginTop: '10px' }}>
-                <IonCardHeader>
-                  <IonCardTitle style={{ color: 'rgb(76 50 38)', fontSize: '20px', letterSpacing: '1.1px' }}>Quotation Details</IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <form onSubmit={handleSubmit}>
-                    <IonLabel position="stacked" style={{ display: 'flex' }}>
-                      Name:<span className="text-danger" style={{ color: 'red' }}>*</span>
-                    </IonLabel>
-                    <IonInput
-                      style={{ textAlign: 'start' }}
-                      value={form?.fullName}
-                      onIonChange={handleInputChange}
-                      type="text"
-                      name="fullName"
-                      required
-                      disabled
-                    />
-                    <IonLabel position="stacked" style={{ display: 'flex' }}>
-                      Customer Mobile No:<span className="text-danger" style={{ color: 'red' }}>*</span>
-                    </IonLabel>
-                    <IonInput
-                      style={{ textAlign: 'start' }}
-                      value={form?.mobileNumber}
-                      type="tel"
-                      name="mobileNumber"
-                      onIonChange={handleInputChange}
-                      required
-                      fill="clear"
-                      color="secondary"
-                    />
-                    <IonLabel position="stacked" style={{ display: 'flex' }}>
-                      Customer Email:<span className="text-danger" style={{ color: 'red' }}>*</span>
-                    </IonLabel>
-                    <IonInput
-                      style={{ textAlign: 'start' }}
-                      value={form?.email}
-                      type="email"
-                      name="email"
-                      onIonChange={handleInputChange}
-                      color="secondary"
-                      required
-                    />
-                    <IonLabel position="stacked" style={{ display: 'flex' }}>
-                      Company Name:<span className="text-danger" style={{ color: 'red' }}>*</span>
-                    </IonLabel>
-                    <IonInput
-                      style={{ textAlign: 'start' }}
-                      value={form?.companyName}
-                      type="text"
-                      name="companyName"
-                      color="secondary"
-                      onIonChange={handleInputChange}
-                      required
-                    />
-                    <IonLabel position="stacked" style={{ display: 'flex' }}>
-                      Reference Name:<span className="text-danger" style={{ color: 'red' }}>*</span>
-                    </IonLabel>
-                    <IonInput
-                      style={{ textAlign: 'start' }}
-                      value={form?.referenceName}
-                      onIonChange={handleInputChange}
-                      type="text"
-                      color="secondary"
-                      name="referenceName"
-                      required
-                    />
-                  </form>
-                  <form onSubmit={handleSubmit}>
-                    <IonButton expand="full" type="submit" style={{ background: '#feddb2', letterSpacing: '0.1px', marginTop: '10px', color: '#4c3226', display: 'block' }} >
-                      Confirm Order
-                      <span style={{ fontSize: '13px' }}> (Ask for Quotation)</span>
-                    </IonButton>
-                  </form>
-                </IonCardContent>
-              </div>
+          <IonModal
+            isOpen={showDropdown}
+            onDidDismiss={closeDropdown}
+            className="bottom-modal"
+            breakpoints={[0, 0.5, 0.8]} // Optional: allows resizing
+            initialBreakpoint={0.8} // Starts at 60% height
+          >
+            <div className="bottom-modal-content">
+              {/* Close Button */}
+              <button className="bottom-modal-close" onClick={closeDropdown}>
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+
+              {/* Modal Header */}
+              <IonCardHeader>
+                <IonCardTitle className="bottom-modal-title">
+                  Quotation Details
+                </IonCardTitle>
+              </IonCardHeader>
+
+              {/* Modal Body */}
+              <IonCardContent>
+                <form onSubmit={handleSubmit}>
+                  <IonLabel position="stacked" className="modal-label">
+                    Name:<span className="required">*</span>
+                  </IonLabel>
+                  <IonInput
+                    value={form?.fullName}
+                    onIonChange={handleInputChange}
+                    type="text"
+                    name="fullName"
+                    required
+                    readonly
+                    onFocus={handleFocus}
+                    // style={{
+                    //   color: '#000',       // black text
+                    //   fontWeight: 'bold',  // bold
+                    //   backgroundColor: '#fff', // optional: lighter background to indicate disabled
+                    // }}
+                  />
+
+                  <IonLabel position="stacked" className="modal-label">
+                    Customer Mobile No:<span className="required">*</span>
+                  </IonLabel>
+                  <IonInput
+                    value={form?.mobileNumber}
+                    type="tel"
+                    name="mobileNumber"
+                    onIonChange={handleInputChange}
+                    required
+                    color="secondary"
+                    onFocus={handleFocus}
+                  />
+
+                  <IonLabel position="stacked" className="modal-label">
+                    Customer Email:<span className="required">*</span>
+                  </IonLabel>
+                  <IonInput
+                    value={form?.email}
+                    type="email"
+                    name="email"
+                    onIonChange={handleInputChange}
+                    color="secondary"
+                    required
+                    onFocus={handleFocus}
+                  />
+               {emailError && (
+  <p style={{ color: 'red', fontSize: '0.8em', marginTop: '4px' }}>
+    {emailError}
+  </p>
+)}
+
+                  <IonLabel position="stacked" className="modal-label">
+                    Company Name:<span className="required">*</span>
+                  </IonLabel>
+                  <IonInput
+                    value={form?.companyName}
+                    type="text"
+                    name="companyName"
+                    color="secondary"
+                    onIonChange={handleInputChange}
+                    required
+                    onFocus={handleFocus}
+                  />
+
+                  <IonLabel position="stacked" className="modal-label">
+                    Reference Name:<span className="required">*</span>
+                  </IonLabel>
+                  <IonInput
+                    value={form?.referenceName}
+                    onIonChange={handleInputChange}
+                    type="text"
+                    color="secondary"
+                    name="referenceName"
+                    required
+                    onFocus={handleFocus}
+                  />
+
+                  <IonButton
+                    expand="full"
+                    type="submit"
+                    className="modal-submit-btn"
+                  >
+                    Confirm Order
+                    <span className="subtext"> (Ask for Quotation)</span>
+                  </IonButton>
+                </form>
+              </IonCardContent>
             </div>
-          </div>
-        )}
+          </IonModal>
+
       </IonContent >
       </IonPage>
 

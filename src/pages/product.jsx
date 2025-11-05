@@ -605,30 +605,24 @@ function Product() {
                                                         <IonRadio value="strawberries" labelPlacement="end" color='secondary' style={{ color: '#4c3226', marginRight: '0', width: '100%' }}>EF VS+</IonRadio>
                                                     </div>
                                                 </IonRadioGroup> */}
-                                                <h6>Diamond Quality</h6>
-                                                <IonRadioGroup value={selectedQuality} onIonChange={(e) => setSelectedQuality(e.detail.value)} style={{ display: 'flex',  alignItems: 'center', gap: '10px', margin: '0' }}>
-                                                    {diamondGroup?.map((item, i) => (
-                                                        <div key={i} className='diamondcol' style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0' }}>
-                                                            <IonRadio
-                                                                value={item}
-                                                                labelPlacement="end"
-                                                                color="secondary"
-                                                                style={{
-                                                                    color: '#4c3226',
-                                                                    padding: '5px 6px',
-                                                                    backgroundColor: selectedQuality === item ? 'rgb(255 230 202)' : 'rgb(255 246 236)',
-                                                                    cursor: 'pointer',
-                                                                    width: '100%',
-                                                                    marginTop:'10px',
-    
-                                                                }}
-                                                            >
-                                                                <span >{item}</span>
-                                                            </IonRadio>
-                                                        </div>
-                                                    ))}
-                                                </IonRadioGroup>
-
+                                                 <h6>Diamond Quality</h6>
+                                            <div className="radio-group">
+                                        {diamondGroup?.map((item, i) => (
+                                            <label
+                                            key={i}
+                                            className={`radio-button ${selectedQuality === item ? 'selected' : ''}`}
+                                            >
+                                            <input
+                                                type="radio"
+                                                name="diamondQuality"
+                                                value={item}
+                                                checked={selectedQuality === item}
+                                                onChange={() => setSelectedQuality(item)}
+                                            />
+                                            <span>{item}</span>
+                                            </label>
+                                        ))}
+                                        </div>
                                             </div>
                                             <IonRow>
                                                 <IonCol size='12'>
@@ -679,7 +673,8 @@ function Product() {
                                                                 padding: '12px 10px',
                                                                 borderRadius: '7px',
                                                                 width: '100%',
-                                                                cursor: 'pointer'
+                                                                cursor: 'pointer',
+                                                          
                                                             }}
                                                         >
                                                             <option value="" disabled>Select Size</option>
@@ -730,7 +725,8 @@ function Product() {
                                                         border: '2px solid #ccc',
                                                         outline: 'none',
                                                         resize: 'none',
-                                                        background: 'transparent'
+                                                        background: 'transparent',
+                                                        marginTop: '10px'
                                                     }}
                                                 ></textarea>
 

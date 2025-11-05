@@ -128,11 +128,12 @@ const Login = ({ handleClosep }) => {
     return (
         <>
             <IonPage>
-            <IonContent>
+            <IonContent className="no-scroll-content">
                 <div className='main-bg' style={{ width: '100%', height: '100%', marginTop:'30px' }}>
                     <img
                         className='freem253'
                         src="/img/logoa12.png"
+                        
                     ></img>
                     {/* <div style={{ width: '100%', height: '30px', background: '#4c3226', position: 'absolute', left: ' 0', top: '50px' }}></div> */}
                     <img
@@ -148,7 +149,7 @@ const Login = ({ handleClosep }) => {
                             className='freemlogin2'
                             src="/img/userlogo.svg"
                         ></IonImg>
-                        <div class="cell smaldesignleft">
+                        <div class="cell smaldesignleft" >
                             <div class="circle fade-in-left">
                                 <img
                                     src="/img/leftdesign.svg"
@@ -265,7 +266,7 @@ const Login = ({ handleClosep }) => {
                                                     </IonCol>
                                                     <IonCol size='6' className="col-6 " style={{ textAlign: 'end',margin:'-7px 0px 0px 0px'}}>
                                                         <span onClick={() => handleItemClick()} style={{ cursor: "pointer", fontSize: '14px', color: '#bc7700' }}>
-                                                            Forget Password ?
+                                                            Forgot Password ?
                                                         </span>
                                                     </IonCol>
                                                 </IonRow>

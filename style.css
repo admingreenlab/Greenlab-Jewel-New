@@ -161,6 +161,46 @@ input:focus-visible {
     opacity: 0.9;
 }
 
+.radio-group {
+    display: flex; /* Horizontal layout */
+    gap: 10px;    /* Space between buttons */
+  }
+  
+  /* Hide default radio input */
+  .radio-button input[type="radio"] {
+    display: none;
+  }
+  
+  /* Style the label as a button */
+  .radio-button {
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: rgb(255, 246, 236);
+    color: #4c3226;
+    cursor: pointer;
+    border: 1px solid #e0cbb7;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30%;
+  }
+  
+  /* Selected state */
+  .radio-button.selected {
+    background-color: rgb(255, 230, 202);
+    border-color: #d9a96a;
+    font-weight: 500;
+  }
+  
+  /* Hover effect */
+  .radio-button:hover {
+    background-color: rgb(255, 235, 210);
+  }
+
+  
+  
+
 .modal2 {
     background: white;
     padding: 10px;
@@ -181,7 +221,7 @@ input:focus-visible {
     max-width: 94px;
 }
 
-.profileque-1 {
+/* .profileque-1 {
     width: 100%;
     height: auto;
     background: #fff;
@@ -191,7 +231,7 @@ input:focus-visible {
     margin: auto;
     border-radius: 9px;
 
-}
+} */
 
 ion-label.sc-ion-label-md-h.sc-ion-label-md-s.md.label-stacked.hydrated {
     font-size: 16px;
@@ -207,6 +247,78 @@ ion-label.sc-ion-label-md-h.sc-ion-label-md-s.md.label-stacked.hydrated {
     top: 0;
     display: flex;
 }
+
+/* Bottom Sheet Modal */
+.bottom-modal {
+    --border-radius: 20px 20px 0 0;
+    --background: #fff;
+    align-items: flex-end;
+    justify-content: flex-end;
+    --height: 100%;
+  }
+  
+  .bottom-modal-content {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 20px 24px;
+    position: relative;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    max-height: 80vh;   /* modal height won’t exceed screen */
+    overflow-y: auto;    /* allow scrolling inside modal */
+  }
+  
+  /* Close button */
+  .bottom-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 26px;
+    color: #000;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  /* Modal title */
+  .bottom-modal-title {
+    color: #4c3226!important;
+    font-size: 20px;
+    letter-spacing: 1.1px;
+    text-align: center;
+    margin-top: 6px;
+    margin-bottom: 10px;
+  }
+  
+  /* Label styling */
+  .modal-label {
+    display: flex;
+    font-weight: 500;
+    margin-top: 8px;
+    color: #4c3226;
+  }
+  
+  /* Required asterisk */
+  .required {
+    color: red;
+    margin-left: 4px;
+  }
+  
+  /* Button */
+  .modal-submit-btn {
+    background: #feddb2 !important;
+    letter-spacing: 0.1px;
+    margin-top: 16px;
+    color: #4c3226 !important;
+    font-weight: 500;
+    border-radius: 8px;
+  }
+  
+  .modal-submit-btn .subtext {
+    font-size: 13px;
+    margin-left: 4px;
+  }
+  
 
 span.count-shop {
     position: absolute;
@@ -950,6 +1062,7 @@ ion-button.addticaed {
     background-color: #0056b3;
 }
 
+
 .offcanvas {
     position: fixed;
     bottom: -100%;
@@ -971,7 +1084,7 @@ ion-button.addticaed {
 }
 .offcanvas.show {
     bottom: 0;
-    top: 40px;
+    top: 25px;
     transition: 1.3s;
 }
 
@@ -1006,7 +1119,7 @@ ion-button.addticaed {
     display: flex;
     background: #4c3226;
     width: 100%;
-    padding: 15px 0;
+    padding: 20px 0;
     justify-content: space-between;
     z-index: 999999;
     max-width: 496px;
@@ -1233,11 +1346,12 @@ ion-modal {
 
 .swiper-button-prev:after ,
 .swiper-button-next:after  {
-    font-size: 16px !important;
+    /* font-size: 16px !important;
     padding: 7px 10px;
     background-color: #f3a41cb0;
     color: #ffffff;
-    border-radius: 50%;
+    border-radius: 50%; */
+     display: none !important;
 }
 
 label {
@@ -1449,7 +1563,7 @@ h5:empty {
     .bottombtm {
         max-width: 312px;
         width: 100%;
-        margin: 0 20px 0 10px;
+        margin: 0 20px 10px 10px;
     }
 
     .badge {
@@ -1784,3 +1898,9 @@ p {
 
 }
 
+.no-scroll-content {
+    --overflow: hidden;
+    overflow-y: hidden !important;
+    height: 100vh;
+  }
+  

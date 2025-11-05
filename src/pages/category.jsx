@@ -46,6 +46,7 @@ import { chevronDownCircleOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { ellipsisHorizontalOutline, gridOutline, listOutline } from 'ionicons/icons';
 import companyLogo from '../../public/img/logo.svg';
+import CardSkeleton from './Cardskeleton';
 
 function Category() {
     const history = useHistory();
@@ -299,6 +300,7 @@ function Category() {
             minpointer: 0,
             maxpointer: 0,
             attr: [],
+            shape: []
         });
         setCategoryFilter([]);
         setSelectedCollection([]);
@@ -440,10 +442,10 @@ function Category() {
                                             size="12"
                                             style={{
                                                 position: "sticky",
-                                                top: 22,
+                                                top: 10,
                                                 backgroundColor: "#fff", 
                                                 zIndex: 9,
-                                                padding: "10px 10px",
+                                                padding: "25px 0px 10px 0px",
                                                 display: "flex",
                                                 justifyContent: "center", 
                                                 boxShadow: "0 2px 2px rgba(0,0,0,0.1)",
@@ -555,11 +557,11 @@ function Category() {
                         <IonModal
                             isOpen={showLayoutModal}
                             onDidDismiss={() => setShowLayoutModal(false)}
-                            initialBreakpoint={0.3}
-                            breakpoints={[0, 0.3, 0.5]}
-                            style={{ '--height': '80%' }}
+                            initialBreakpoint={0.8}
+                            breakpoints={[0, 0.3, 0.6]}
+                            style={{ '--height': '40%' }}
                         >
-                        <div style={{ padding: '40px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', background:'#fff' }}>
+                        <div style={{ padding: '10px', height:'100%', display: 'flex', justifyContent: 'space-around', alignItems: 'center', background:'#fff' }}>
                             
                             <div 
                                 style={{ textAlign: 'center', cursor: 'pointer' }} 
@@ -589,37 +591,61 @@ function Category() {
                         <IonModal
                             isOpen={showSortModal}
                             onDidDismiss={() => setShowSortModal(false)}
-                            initialBreakpoint={0.5}
+                            initialBreakpoint={0.8}
                             breakpoints={[0, 0.5, 0.75]}
-                            style={{ '--height': '80%' , }} 
+                            style={{ '--height': '60%'}} 
                             
                         >
-                            <div style={{ padding: "40px" , background:'#fff'}}>
+                            <div style={{ padding: "20px" , height:'100%', background:'#fff'}}>
                             <h3 style={{ textAlign: "center", marginBottom: "15px" }}>Sort Options</h3>
 
                             <IonRadioGroup
-                                value={`${sortOrder}-${sortctswts}`}
-                                onIonChange={(e) => handleSelectChange(e.detail.value)}
-                            >
-                                <IonList>
-                                <IonItem>
-                                    <IonLabel>Style No (Ascending)</IonLabel>
-                                    <IonRadio slot="start" value="asc-" />
-                                </IonItem>
-                                <IonItem>
-                                    <IonLabel>Style No (Descending)</IonLabel>
-                                    <IonRadio slot="start" value="desc-" />
-                                </IonItem>
-                                <IonItem>
-                                    <IonLabel>Min Carats</IonLabel>
-                                    <IonRadio slot="start" value="-min" />
-                                </IonItem>
-                                <IonItem>
-                                    <IonLabel>Max Carats</IonLabel>
-                                    <IonRadio slot="start" value="-max" />
-                                </IonItem>
-                                </IonList>
-                            </IonRadioGroup>
+  value={`${sortOrder}-${sortctswts}`}
+  onIonChange={(e) => handleSelectChange(e.detail.value)}
+>
+  <IonList>
+    <IonItem>
+      <IonLabel
+        onClick={() => handleSelectChange("asc-")}
+        className="ion-text-wrap"
+      >
+        Style No (Ascending)
+      </IonLabel>
+      <IonRadio slot="start" value="asc-" />
+    </IonItem>
+
+    <IonItem>
+      <IonLabel
+        onClick={() => handleSelectChange("desc-")}
+        className="ion-text-wrap"
+      >
+        Style No (Descending)
+      </IonLabel>
+      <IonRadio slot="start" value="desc-" />
+    </IonItem>
+
+    <IonItem>
+      <IonLabel
+        onClick={() => handleSelectChange("-min")}
+        className="ion-text-wrap"
+      >
+        Min Carats
+      </IonLabel>
+      <IonRadio slot="start" value="-min" />
+    </IonItem>
+
+    <IonItem>
+      <IonLabel
+        onClick={() => handleSelectChange("-max")}
+        className="ion-text-wrap"
+      >
+        Max Carats
+      </IonLabel>
+      <IonRadio slot="start" value="-max" />
+    </IonItem>
+  </IonList>
+</IonRadioGroup>
+
                             </div>
                         </IonModal>   
                         <div className='main-catagory'>
@@ -631,13 +657,19 @@ function Category() {
                             <IonRow>
 
                                 {loading ? (
-                                    <p style={{ color: '#000', display: 'flex', justifyContent: 'center' }}>Loading...</p>
+                                    <>
+                                    {[...Array(6)].map((_, index) => (
+                                        <CardSkeleton key={index} />
+                                    ))}
+                                    </>
                                 ) : error ? (
-                                    <p className="error-message" style={{ color: '#000', display: 'flex', justifyContent: 'center' }}>{error}</p>
-                                ) :  categoryDetails && categoryDetails.length > 0 ? (
-                                    categoryDetails?.map(item => {
-                                        const hasSubItems = item.subItems && item.subItems.length > 0;
-                                        const redirectTo = hasSubItems ? `/c-category/${item._id}` : `/product/${item._id}`;
+                                    <p className="error-message" style={{ color: '#000', display: 'flex', justifyContent: 'center' }}>
+                                    {error}
+                                    </p>
+                                ) : categoryDetails && categoryDetails.length > 0 ? (
+                                    categoryDetails.map(item => {
+                                    const hasSubItems = item.subItems && item.subItems.length > 0;
+                                    const redirectTo = hasSubItems ? `/c-category/${item._id}` : `/product/${item._id}`;
 
                                         return (
                                             <IonCol size-md='4' size-sm='6' size={layout === 'grid' ? '6' : '12'}  key={item._id}>
@@ -719,7 +751,7 @@ function Category() {
                                                                         modules={[Navigation]}
                                                                         navigation
                                                                         breakpoints={{
-                                                                            320: { slidesPerView: 3, spaceBetween: 6 },
+                                                                            320: { slidesPerView: 2, spaceBetween: 3 },
                                                                             480: { slidesPerView: 3, spaceBetween: 6 },
                                                                             768: { slidesPerView: 3, spaceBetween: 6 },
                                                                             1024: { slidesPerView: 4, spaceBetween: 5 },
@@ -769,10 +801,10 @@ function Category() {
 
 
                      
-                                <IonButton className='left_bottom_fix' shape='round' size='large' color='secondary' onClick={handleupper}>
+                                <IonButton style={{margin:'0px 0px 20px 0px'}} className='left_bottom_fix' shape='round' size='large' color='secondary' onClick={handleupper}>
                                         <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
                                 </IonButton>
-                            <div className={`offcanvas ${isOpen ? "show" : ""}`} style={{marginTop:'100px'}}>
+                            <div className={`offcanvas ${isOpen ? "show" : ""}`} style={{marginTop:'80px'}}>
                                 <div className="content">
                                     <div color='secondary'>
                                         <div className='topbtn'>
