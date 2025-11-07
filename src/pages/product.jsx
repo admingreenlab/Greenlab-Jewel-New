@@ -67,7 +67,7 @@ function Product() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(null);
     const [diamondGroup, setDiamondGroup] = useState([]);
-    const { wishData, setWishData } = useContext(DataContext);
+    const {fetchWishlist, wishData, addToWishlist, removeFromWishlist } = useContext(DataContext);
     const [checkedItems, setCheckedItems] = useState({});
     const [liked, setLiked] = useState(false);
     const [sizeDetails, setSizeDetails] = useState([]);
@@ -197,6 +197,7 @@ function Product() {
 
     useEffect(() => {
         fetchProductData();
+        // fetchWishlist();
     }, []);
 
     useEffect(() => {
@@ -235,45 +236,37 @@ function Product() {
         setSelectedFindings(e.target.value);
     };
 
-    const handleRefresh = async (event) => {
-        await fetchProductData();
-        setTimeout(() => {
-            // Any calls to load data go here
-            event.detail.complete();
-        }, 1500); // Signal that the refresh is complete
-    };
+  const handleItemCheckboxChange = async (itemId) => {
+  const isInWishlist = checkedItems[itemId];
+  try {
+    if (isInWishlist) {
+      await removeFromWishlist(itemId);
+      setCheckedItems((prev) => {
+        const updated = { ...prev };
+        delete updated[itemId];
+        return updated;
+      });
+      await fetchWishlist(); // ✅ Refresh wishlist data from backend
+    } else {
+      await addToWishlist(itemId);
+      setCheckedItems((prev) => ({ ...prev, [itemId]: true }));
+      await fetchWishlist(); // optional, if you want to keep it fully synced
+    }
+  } catch (error) {
+    console.error("Error toggling wishlist:", error);
+  }
+};
 
-    // useEffect(() => {
-    // }, [selectedType]);
 
-    const handleItemCheckboxChange = (id, data) => {
-        setLiked(!liked);
-        setCheckedItems((prevCheckedItems) => ({
-            ...prevCheckedItems,
-            [id]: !prevCheckedItems[id],
-        }));
-
-        const storedList = JSON.parse(localStorage.getItem("wishList")) || [];
-        const itemIndex = storedList.findIndex((item) => item._id === data._id);
-
-        if (itemIndex === -1) {
-            storedList.push(data);
-        } else {
-            storedList.splice(itemIndex, 1);
-        }
-        setWishData(storedList);
-    };
-
+  
     useEffect(() => {
-        const newCheckedItems = {};
-        wishData?.forEach((item) => {
-            if (item?._id) {
-                newCheckedItems[item._id] = true;
-            }
-        });
+    const newChecked = {};
+    wishData?.forEach((item) => {
+      newChecked[item._id] = true;
+    });
+    setCheckedItems(newChecked);
+  }, [wishData]);
 
-        setCheckedItems(newCheckedItems);
-    }, []);
 
     const handleTypeMessage = (e) => {
         setTypeMessage(e.target.value);
@@ -286,18 +279,19 @@ function Product() {
     };
     return (
         <>
+          <IonPage>
             <IonHeader>
                 <h1>home</h1>
             </IonHeader>
             <Header />
             <IonContent color="primary" style={{ paddingBottom: '80x', marginBottom: '100px', marginTop: '10px' }}>
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                     <IonRefresherContent
                         pullingIcon={chevronDownCircleOutline}
                         refreshingSpinner="circles"
                     ></IonRefresherContent>
-                </IonRefresher>
-                <div style={{ marginTop: '20px' }}>
+                </IonRefresher> */}
+                <div style={{ marginTop: '30px' }}>
                     <h5 class="text-center mb-5 element">Products</h5>
                 </div>
 
@@ -697,18 +691,18 @@ function Product() {
                                                         </div>
                                                     </IonButton>
                                                 </div>
-                                                <IonButton
-                                                    id={_id}
-                                                    color={checkedItems[_id] ? "danger" : "medium"}
-                                                    fill="clear"
-                                                    onClick={() => handleItemCheckboxChange(_id, productDetails)}
-                                                >
-                                                    <IonIcon
-                                                        slot="icon-only"
-                                                        size="large"
-                                                        icon={checkedItems[_id] ? heart : heartOutline}
-                                                    />
-                                                </IonButton>
+                                              <IonButton
+                                            id={productDetails._id}
+                                            color={checkedItems[productDetails._id] ? "danger" : "medium"}
+                                            fill="clear"
+                                            onClick={() => handleItemCheckboxChange(productDetails._id)}
+                                            >
+                                            <IonIcon
+                                                slot="icon-only"
+                                                size="large"
+                                                icon={checkedItems[productDetails._id] ? heart : heartOutline}
+                                            />
+                                            </IonButton>
                                             </div>
                                             <div className='adtocard'>
                                                 <IonButton className='addticaed' expand="block" onClick={(e) => handleAddToCart(e, _id)}>ADD  TO   CART</IonButton>
@@ -983,6 +977,8 @@ function Product() {
                 message={toastMessage}
                 duration={2000}
             />
+
+              </IonPage>
         </ >
     );
 }

@@ -82,18 +82,19 @@ function Product() {
 
     return (
         <>
+          <IonPage>
             <Header />
             <IonHeader>
                 <h1>home</h1>
             </IonHeader>
             <IonContent color="primary" style={{ paddingBottom: '80x', marginBottom: '100px', marginTop: '10px' }}>
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '20px' }}>
+                {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '20px' }}>
                     <IonRefresherContent
                         pullingIcon={chevronDownCircleOutline}
                         refreshingSpinner="circles"
                     ></IonRefresherContent>
-                </IonRefresher>
-                <div style={{ marginTop: '20px', marginBottom: '10px' }}>
+                </IonRefresher> */}
+                <div style={{ marginTop: '30px', marginBottom: '10px' }}>
                     <h5 class="text-center mb-5 element">My Quotations View</h5>
                 </div>
                 <div className='myquotations'>
@@ -253,7 +254,7 @@ function Product() {
                 </div>
 
             </IonContent >
-
+  </IonPage>
         </ >
     );
 }

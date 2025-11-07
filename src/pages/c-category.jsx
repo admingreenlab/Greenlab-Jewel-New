@@ -40,6 +40,7 @@ import { IonIcon } from "@ionic/react";
 import { heartOutline, heart } from "ionicons/icons";
 import { addToCart, showCarts } from "../store/actions";
 import { chevronDownCircleOutline } from 'ionicons/icons';
+import { toast } from "react-toastify";
 
 function CategoryPage() {
     const { id } = useParams();
@@ -49,13 +50,15 @@ function CategoryPage() {
     const [loading, setLoading] = useState(null);
     const isFetching = useRef(false)
     const [selectedMetal, setSelectedMetal] = useState("");
-    const { wishData, setWishData } = useContext(DataContext);
+    const { wishData, fetchWishlist, addToWishlist, removeFromWishlist } = useContext(DataContext);
+
     const [checkedItems, setCheckedItems] = useState({});
     const [liked, setLiked] = useState(false);
     const [cart, setCart] = useState([]);
     const [quotations, setQuotations] = useState([]);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+
 
     const fetchCategoryData = async () => {
         if (isFetching.current) return;
@@ -83,14 +86,17 @@ function CategoryPage() {
 
 
 
+
+
+
     const handleAddToCart = async (item) => {
         if (isFetching.current) return;
         isFetching.current = true;
         setLoading(true);
-        
+
         try {
-            const selectedMetalForItem = selectedMetal[item._id] || item.metalcolor; 
-            
+            const selectedMetalForItem = selectedMetal[item._id] || item.metalcolor;
+
             const payload = {
                 itemId: item._id,
                 quantity: 1,
@@ -105,7 +111,7 @@ function CategoryPage() {
                 sidectwt: item.sidectwt,
                 centerctwt: item.centerctwt
             };
-    
+
             const response = await jwtAuthAxios.post('/client/cart/add', payload);
             setCart([...cart, response.data]);
             dispatch(addToCart({ item: item._id, quantity: 1 }));
@@ -120,52 +126,50 @@ function CategoryPage() {
             isFetching.current = false;
         }
     };
+    const user = JSON.parse(localStorage.getItem('user')); // stored user object
+    const userId = user?._id;
 
-
-    const handleItemCheckboxChange = (id, data) => {
-        setLiked(!liked);
-        setCheckedItems((prevCheckedItems) => ({
-            ...prevCheckedItems,
-            [id]: !prevCheckedItems[id],
-        }));
-
-        const storedList = JSON.parse(localStorage.getItem("wishList")) || [];
-        const itemIndex = storedList.findIndex((item) => item._id === data._id);
-
-        if (itemIndex === -1) {
-            storedList.push(data);
-        } else {
-            storedList.splice(itemIndex, 1);
+    const handleItemCheckboxChange = async (itemId) => {
+        const isInWishlist = checkedItems[itemId];
+        try {
+            if (isInWishlist) {
+                await removeFromWishlist(itemId);
+                setCheckedItems((prev) => {
+                    const updated = { ...prev };
+                    delete updated[itemId];
+                    return updated;
+                });
+                await fetchWishlist(); // ✅ Refresh wishlist data from backend
+            } else {
+                await addToWishlist(itemId);
+                setCheckedItems((prev) => ({ ...prev, [itemId]: true }));
+                await fetchWishlist(); // optional, if you want to keep it fully synced
+            }
+        } catch (error) {
+            console.error("Error toggling wishlist:", error);
         }
-        setWishData(storedList);
     };
 
+    // Sync checked state with wishlist data
     useEffect(() => {
-        const newCheckedItems = {};
+        const newChecked = {};
         wishData?.forEach((item) => {
-            if (item?._id) {
-                newCheckedItems[item._id] = true;
-            }
+            newChecked[item._id] = true;
         });
-
-        setCheckedItems(newCheckedItems);
-    }, []);
+        setCheckedItems(newChecked);
+    }, [wishData]);
 
 
     useEffect(() => {
         if (id) {
             fetchCategoryData();
             handleAddToCart()
+            fetchWishlist();
         }
     }, [id]);
 
-    const handleRefresh = async (event) => {
-        await fetchCategoryData();
-        setTimeout(() => {
-            // Any calls to load data go here
-            event.detail.complete();
-        }, 1500); // Signal that the refresh is complete
-    };
+
+
 
     return (
         <IonPage>
@@ -175,12 +179,12 @@ function CategoryPage() {
             <Header />
 
             <IonContent color="primary">
-            <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                         <IonRefresherContent
                             pullingIcon={chevronDownCircleOutline}
                             refreshingSpinner="circles"
                         ></IonRefresherContent>
-                    </IonRefresher>
+                    </IonRefresher> */}
                 <IonGrid>
                     <IonRow>
                         <IonCol>
@@ -292,7 +296,7 @@ function CategoryPage() {
                                                         handleAddToCart(item);
                                                     }}>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" fill="#67686d" class="bi bi-cart3" viewBox="0 0 16 16">
-                                                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                                                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
                                                         </svg>
                                                     </IonButton>
                                                     <IonRadioGroup
@@ -313,7 +317,7 @@ function CategoryPage() {
                                                         key={item._id}
                                                         color={checkedItems[item._id] ? "danger" : "medium"}
                                                         fill="clear"
-                                                        onClick={() => handleItemCheckboxChange(item._id, item)}
+                                                        onClick={() => handleItemCheckboxChange(item._id)}
                                                     >
                                                         <IonIcon
                                                             slot="icon-only"
@@ -321,8 +325,6 @@ function CategoryPage() {
                                                             icon={checkedItems[item._id] ? heart : heartOutline}
                                                         />
                                                     </IonButton>
-
-
                                                 </div>
                                             </div>
                                         </div>

@@ -42,7 +42,7 @@ const RadioPage = () => {
 
 
             <IonContent color="primary" style={{ paddingBottom: '80x', marginBottom: '100px' }}>
-                <h4 className="text-center mb-5 element" style={{ marginTop: '20px' }}>Privacy policy</h4>
+                <h4 className="text-center mb-5 element" style={{ marginTop: '40px' }}>Privacy policy</h4>
                 <IonGrid>
                     <IonRow>
                         <IonCol size='12'>

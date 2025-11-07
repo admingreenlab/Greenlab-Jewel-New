@@ -295,23 +295,6 @@ function Category() {
         setPage(1);
     };
 
-    const handleRefresh = async (event) => {
-        await fetchCategoryData();
-        setTimeout(() => {
-            // Any calls to load data go here
-            event.detail.complete();
-        }, 1500); // Signal that the refresh is complete
-    };
-
-    // useEffect(() => {
-    //     console.log("filterDetails", filterDetails);
-    // }, [filterDetails])
-
-    // useEffect(() => {
-    //     jwtAuthAxios.get(`/master/tags/shapes`)
-    //         .then(response => setShape(response.data[0]?.data))
-    //         .catch(error => console.error('Error fetching synonyms:', error));
-    // }, []);
 
     const handleShapeCheckboxChange = (event, item) => {
         const { checked } = event.target;
@@ -338,14 +321,14 @@ function Category() {
             <IonPage>
                 <div style={{ margin: '30px' }}></div>
 
-                <IonContent color="primary">
-                    <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                <IonContent color="primary" >
+                    {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                         <IonRefresherContent
                             pullingIcon={chevronDownCircleOutline}
                             refreshingSpinner="circles"
                         ></IonRefresherContent>
-                    </IonRefresher>
-                    <IonGrid>
+                    </IonRefresher> */}
+                    <IonGrid style={{marginBottom:'50px' }}>
                         <IonRow>
                             <IonCol>
                                 <Swiper className='main-toslider' style={{ marginBottom: '20px', height: '200px' }}
@@ -423,10 +406,10 @@ function Category() {
                                 value={`${sortOrder}-${sortctswts}`}
                                 onChange={(e) => handleSelectChange(e.target.value)}
                             >
-                                <option value="asc-">Sort by Style NO ASC</option>
-                                <option value="desc-">Sort by Style NO DESC</option>
-                                <option value="-min">Sort by Min CtWts</option>
-                                <option value="-max">Sort by Max CtWts</option>
+                                <option value="asc-">Sort by Style No. ASC</option>
+                                <option value="desc-">Sort by Style No. DESC</option>
+                                <option value="-min">Sort by Min Carats</option>
+                                <option value="-max">Sort by Max Carats</option>
                             </select>
                             <select
                                 className="form-select form-select-main"

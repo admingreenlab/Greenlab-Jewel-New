@@ -10,7 +10,8 @@ import {
   IonThumbnail,
   IonButton,
   IonCardTitle,
-  IonToast
+  IonToast,
+  IonPage
 } from '@ionic/react';
 import '../pages/Tab1.css';
 import '../main';
@@ -22,95 +23,124 @@ import jwtAuthAxios from "../service/jwtAuth";
 import { DataContext } from "../context/DataProvider";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-
 const WishlistPage = () => {
-  const [counter, setCounter] = useState(0);
-  const { wishData, setWishData } = useContext(DataContext);
+  const { wishData, removeFromWishlist, fetchWishlist } = useContext(DataContext);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
 
-  const incrementCounter = () => setCounter(counter + 1);
-  const decrementCounter = () => {
-    if (counter > 0) {
-      setCounter(counter - 1);
-    }
-  };
-
-  const handleRemove = (id) => {
+  const handleRemove = async (id) => {
     try {
-      const item = wishData?.filter((item) => item._id !== id);
-      setWishData(item);
-      setToastMessage('Item Remove');
+      await removeFromWishlist(id);
+      setToastMessage("Item removed from wishlist");
       setShowToast(true);
-    }
-    catch (error) {
-      toast.error(error?.response?.data?.error);
+      await fetchWishlist(); 
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.error || "Error removing item");
     }
   };
-
 
   const handleView = (data) => {
     window.open(`/product/${data?._id}`);
   };
 
-
   return (
-    <>
-
+    <IonPage>
       <IonHeader>
-        <h1>home</h1>
+        <h1>Wishlist</h1>
       </IonHeader>
       <Header />
-      <IonContent color="primary" style={{ paddingBottom: '80x', marginBottom: '100px' }}>
-        <h4 className="text-center mb-5 element" style={{ marginTop: '20px' }}>Your Wishlist</h4>
-        <div style={{ paddingBottom: '80x', marginBottom: '100px', position: 'relative' }}>
-
+      <IonContent color="primary" style={{ paddingBottom: "80px", marginBottom: "100px" }}>
+        <h4 className="text-center mb-5 element" style={{ marginTop: "30px" }}>
+          Your Wishlist
+        </h4>
+        <div style={{ paddingBottom: "80px", marginBottom: "100px", position: "relative" }}>
           {wishData?.length > 0 ? (
-            wishData.map((item, i) => {
-              return (
-                <div style={{ padding: ' 0', border: '1px solid rgb(0 0 0 / 19%)', margin: '10px', borderRadius: '9px', background: '#fff' }}>
-                  <IonGrid>
-                    <IonRow>
-                      <IonCol size='12' key={i}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'space-between' }}>
-                          <IonThumbnail slot="start">
-                            <img alt="Silhouette of mountains" src={IMG_PATH + item?.thumbnailImage} />
-                          </IonThumbnail>
-                          <IonCardTitle style={{ color: 'black', justifyContent: 'center', display: 'flex', fontSize: '12px', marginRight: 'auto', textTransform:'uppercase'}}>
-                            {item?.description}
-                          </IonCardTitle>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                            <IonButton shape='round' onClick={() => {
-                              handleView(item);
-                            }}>
-                              <Ion-Icon slot="icon-only" size='small' name="eye-outline" style={{ color: 'green' }}></Ion-Icon>
-                            </IonButton>
-                            <IonButton shape='round' onClick={() => handleRemove(item?._id)}>
-                              <Ion-Icon slot="icon-only" size='small' name="trash-outline" style={{ color: ' red' }}></Ion-Icon>
-                            </IonButton>
-                          </div>
+            wishData.map((item, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: "0",
+                  border: "1px solid rgb(0 0 0 / 19%)",
+                  margin: "10px",
+                  borderRadius: "9px",
+                  background: "#fff"
+                }}
+              >
+                <IonGrid>
+                  <IonRow>
+                    <IonCol size="12">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          justifyContent: "space-between"
+                        }}
+                      >
+                        <IonThumbnail slot="start">
+                          <img
+                            alt="Product"
+                            src={IMG_PATH + item?.thumbnailImage}
+                          />
+                        </IonThumbnail>
+                        <IonCardTitle
+                          style={{
+                            color: "black",
+                            justifyContent: "center",
+                            display: "flex",
+                            fontSize: "12px",
+                            marginRight: "auto",
+                            textTransform: "uppercase"
+                          }}
+                        >
+                          {item?.description}
+                        </IonCardTitle>
+                        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+                          <IonButton
+                            shape="round"
+                            onClick={() => handleView(item)}
+                          >
+                            <ion-icon
+                              slot="icon-only"
+                              size="small"
+                              name="eye-outline"
+                              style={{ color: "green" }}
+                            ></ion-icon>
+                          </IonButton>
+                          <IonButton
+                            shape="round"
+                            onClick={() => handleRemove(item?._id)}
+                          >
+                            <ion-icon
+                              slot="icon-only"
+                              size="small"
+                              name="trash-outline"
+                              style={{ color: "red" }}
+                            ></ion-icon>
+                          </IonButton>
                         </div>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                </div>
-              );
-            })
+                      </div>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              </div>
+            ))
           ) : (
-            <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
+            <div style={{ textAlign: "center", padding: "20px", color: "#888" }}>
               <h3>No items in your wishlist</h3>
-
             </div>
           )}
-        </div >
+        </div>
+
         <IonToast
-                isOpen={showToast}
-                onDidDismiss={() => setShowToast(false)}
-                message={toastMessage}
-                duration={2000}
-            />  
-      </IonContent >
-    </>
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={2000}
+        />
+      </IonContent>
+    </IonPage>
   );
 };
 

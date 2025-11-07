@@ -60,7 +60,16 @@ function Head() {
     //     fetchHomeData();
     // }, []);
 
-
+  useEffect(() => {
+    const safeArea = getComputedStyle(document.documentElement)
+      .getPropertyValue('--ion-safe-area-bottom');
+    
+    // .bottombtm-min div par padding add karse
+    const bottomEl = document.querySelector('.bottombtm-min');
+    if (bottomEl) {
+      bottomEl.style.paddingBottom = safeArea || '12px';
+    }
+  }, []);
 
     return (
         <>
@@ -147,7 +156,9 @@ function Head() {
                         )}
                     </a>
                 </div>
+                 
             </div>
+            <div className="additional-div"></div>
         </>
     );
 }

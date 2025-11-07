@@ -312,7 +312,7 @@ ion-tab-bar.md.hydrated::before {
 .right_bottom_fix {
     position: fixed;
     right: 16px;
-    bottom: 64px;
+    bottom: 110px;
     z-index: 1;
 }
 
@@ -483,7 +483,7 @@ button.alert-button.ion-focusable.ion-activatable.sc-ion-alert-md {
 }
 
 .alert-button-inner.sc-ion-alert-md {
-    justify-content: center;
+    justify-content: center !important;
 }
 
 .ctstop {
@@ -847,7 +847,10 @@ ion-button.addticaed {
     justify-content: center;
     background: #4c3226;
     box-shadow: 1px 0px 17px 2px #ffc10738;
+    padding-bottom: env(safe-area-inset-bottom, 12px);
+    background-clip: padding-box;
 }
+
 
 .open-btn {
     padding: 10px 20px;

@@ -14,6 +14,7 @@ import {
   IonSearchbar,
   IonRow,
   IonCol,
+  IonPage,
   IonButton
 } from '@ionic/react';
 import { useHistory } from "react-router-dom";
@@ -66,6 +67,7 @@ const LibraryPage = () => {
 
   return (
     <>
+      <IonPage>
       <Header />
       <IonContent>
         <IonRow>
@@ -73,7 +75,7 @@ const LibraryPage = () => {
             <div>
               <IonCard style={{
                 marginBottom: '20px',
-                marginTop: '75px'
+                marginTop: '85px'
               }}>
                 <IonCardHeader className='maindheadider' style={{ backgraount: '#a97550' }}>
                   <IonCardTitle> Search </IonCardTitle>
@@ -128,6 +130,8 @@ const LibraryPage = () => {
         </IonRow>
 
       </IonContent>
+
+      </IonPage>
     </>
   );
 };

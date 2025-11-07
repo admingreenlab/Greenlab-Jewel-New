@@ -208,20 +208,16 @@ const handlePDFDownload = async () => {
     return (
         <IonPage>
             <IonContent style={{ background: "rgba(188, 119, 0, 0.07)" }}>
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '10px' }}>
+                {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '10px' }}>
                     <IonRefresherContent
                         pullingIcon={chevronDownCircleOutline}
                         refreshingSpinner="circles"
                     ></IonRefresherContent>
-                </IonRefresher>
+                </IonRefresher> */}
                 <div className="pb-3" style={{marginTop:'10px'}}>
                     <IonGrid>
                         <IonRow className="ion-align-items-center mb-4">
                             <IonCol size-sm="3" size="3" >
-                                {/* <h4 className="breadcrumb-item" style={{ fontFamily: 'Circular' }}>
-                                    Jewellery Assets
-                                </h4> */}
-
                                 <a href="/home" style={{ padding: '0', }}>
                                     <IonImg
                                         className='logo'
@@ -254,12 +250,10 @@ const handlePDFDownload = async () => {
                                         <ion-icon name="download-outline" slot="icon-only" ></ion-icon>
                                     </IonButton>
                                     <IonLoading
-  isOpen={loadings}
-  message="Downloading PDF..."
-  spinner="circles"
-/>
-
-
+                                        isOpen={loadings}
+                                        message="Downloading PDF..."
+                                        spinner="circles"
+                                        />
                                 </div>
                             </IonCol>
                         </IonRow>
