@@ -348,8 +348,16 @@ function Category() {
     console.log("upper");
     contentRef.current?.scrollToTop(1000); // 500ms smooth
   }
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const toggleModal = () => {
+      setIsModalOpen(true);
+  };
+  
 
+  const modalclose = () => {
+    setIsModalOpen(false);
+};
 
   
     return (
@@ -439,18 +447,19 @@ function Category() {
                                     </IonBreadcrumbs>
 
                                         <IonCol
+                                          className="sticky-header"
                                             size="12"
-                                            style={{
-                                                position: "sticky",
-                                                top: 10,
-                                                backgroundColor: "#fff", 
-                                                zIndex: 9,
-                                                padding: "25px 0px 10px 0px",
-                                                display: "flex",
-                                                justifyContent: "center", 
-                                                boxShadow: "0 2px 2px rgba(0,0,0,0.1)",
-                                                margin:'20px 0px'
-                                            }}
+                                            // style={{
+                                            //     position: "sticky",
+                                            //     top: 10,
+                                            //     backgroundColor: "#fff", 
+                                            //     zIndex: 9,
+                                            //     padding: "30px 0px 20px 0px",
+                                            //     display: "flex",
+                                            //     justifyContent: "center", 
+                                            //     boxShadow: "0 2px 2px rgba(0,0,0,0.1)",
+                                            //     margin:'20px 0px'   
+                                            // }}
                                             >
                                             <div
                                                 style={{
@@ -469,7 +478,7 @@ function Category() {
                                                     border: "none",
                                                     borderRadius: "6px",
                                                     padding: "6px 14px",
-                                                    fontSize: "14px",
+                                                    fontSize: "16px",
                                                     cursor: "pointer",
                                                     display: "flex",
                                                     alignItems: "center",
@@ -487,14 +496,14 @@ function Category() {
 
 
                                                 <button
-                                                onClick={toggleOffcanvas}
+                                                onClick={toggleModal}
                                                 style={{
                                                     backgroundColor: "#fff",
                                                     color: "#6b4b38",
                                                     border: "none",
                                                     borderRadius: "6px",
                                                     padding: "6px 14px",
-                                                    fontSize: "14px",
+                                                    fontSize: "16px",
                                                     cursor: "pointer",
                                                     display: "flex",
                                                     alignItems: "center",
@@ -518,7 +527,7 @@ function Category() {
                                                     padding: "6px 12px",
                                                     borderRadius: "6px",
                                                     border: "none",
-                                                    fontSize: "14px",
+                                                    fontSize: "16px",
                                                     backgroundColor: "#fff",
                                                     color: "#6b4b38",
                                                     cursor: "pointer",
@@ -672,8 +681,13 @@ function Category() {
                                     const redirectTo = hasSubItems ? `/c-category/${item._id}` : `/product/${item._id}`;
 
                                         return (
-                                            <IonCol size-md='4' size-sm='6' size={layout === 'grid' ? '6' : '12'}  key={item._id}>
-                                                <div className='main-card-ctgy' style={{ marginBottom: '30px' }} onClick={() => history.push(redirectTo)}>
+                                            <IonCol
+                                                    size-sm={layout === 'grid' ? '6' : '12'}   // small screen
+                                                    size-md={layout === 'grid' ? '4' : '6'}    // tablet / medium screen
+                                                    size={layout === 'grid' ? '6' : '12'}      // default
+                                                    key={item._id}
+                                                    >
+                                                    <div className='main-card-ctgy' style={{ marginBottom: '30px' }} onClick={() => history.push(redirectTo)}>
                                                     
                                                         {/* <div className='main-card-top'>
                                                             <img src={hoveredItemId === item._id ? hoveredImage : IMG_PATH + item?.thumbnailImage} alt="ig145" />
@@ -804,7 +818,16 @@ function Category() {
                                 <IonButton style={{margin:'0px 0px 20px 0px'}} className='left_bottom_fix' shape='round' size='large' color='secondary' onClick={handleupper}>
                                         <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
                                 </IonButton>
-                            <div className={`offcanvas ${isOpen ? "show" : ""}`} style={{marginTop:'80px'}}>
+                                <IonModal isOpen={isModalOpen}>
+                                     <div  style={{ 
+                                        maxHeight: '100%', 
+                                        overflowY: 'auto', 
+                                        padding: '16px', 
+                                        marginTop: '50px', 
+                                        backgroundColor: '#412e26',
+                                        height:'100%',
+                                    
+                                        }}>
                                 <div className="content">
                                     <div color='secondary'>
                                         <div className='topbtn'>
@@ -813,13 +836,13 @@ function Category() {
                                                     <span>Filter by:</span>
                                                 </div>
                                                 <div>
-                                                    <ion-button onClick={toggleOffcanvas}  fill="clear" style={{ width: '100%', color:"#ffd8ae"}} size="large"><ion-icon name="close-outline"></ion-icon></ion-button>
+                                                    <ion-button onClick={modalclose} fill="clear" style={{ width: '100%', color:"#ffd8ae"}} size="large"><ion-icon name="close-outline"></ion-icon></ion-button>
                                                 </div>
                                             </div>
                                             
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <IonButton onclick={handleReset} style={{ width: '100%', margin: '15px 0', background: '#f3a41c' }} expand="full">Reset</IonButton>
-                                                <IonButton onClick={toggleOffcanvas} style={{ width: '100%', margin: '15px 0', background: '#f3a41c' }} expand="full">Apply</IonButton>
+                                                <IonButton onClick={modalclose} style={{ width: '100%', margin: '15px 0', background: '#f3a41c' }} expand="full">Apply</IonButton>
                                             </div>
                                         </div>
                                         <IonAccordionGroup
@@ -1110,6 +1133,7 @@ function Category() {
                                     </div>
                                 </div>
                             </div>
+                            </IonModal>
                             
                             <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                                 <button

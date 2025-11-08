@@ -48,7 +48,7 @@ const Login = ({ handleClosep }) => {
     const handleFocus = (e) => {
         setTimeout(() => {
           e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 400); // slight delay for keyboard open
+        }, 600); // slight delay for keyboard open
       };
       
 
@@ -86,16 +86,22 @@ const Login = ({ handleClosep }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setInput((prevInput) => ({ ...prevInput, [name]: value }));
+    
+        // Remove leading spaces
+        const trimmedValue = value.replace(/^\s+/, '');
+    
+        setInput((prevInput) => ({ ...prevInput, [name]: trimmedValue }));
+    
         if (name === "email") {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value)) {
-              setEmailError("Please enter a valid email address.");
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+            if (!emailRegex.test(trimmedValue)) {
+                setEmailError("Please enter a valid email address.");
             } else {
-              setEmailError("");
+                setEmailError("");
             }
-          }
+        }
     };
+    
 
 
     return (
@@ -104,7 +110,7 @@ const Login = ({ handleClosep }) => {
                 
                 <div className='main-bg' style={{    width: '100%',
                         height: '100vh',
-                        marginTop: '-10px',
+                        // marginTop: '-10px',
                         overflowY: 'auto',
                         WebkitOverflowScrolling: 'touch' }}>
                     <img
@@ -171,46 +177,46 @@ const Login = ({ handleClosep }) => {
 
                                             </div>
                                             <div style={{ display: 'flex', alignItems: 'center' }}>
-  <button
-    style={{
-      border: '1px solid #4c3226ab',
-      borderRight: "0",
-      padding: '10px',
-      marginRight: '0px',
-      marginBottom: "12px"
-    }}
-    className="btn btn-outline-secondary"
-    type="button"
-    color='#4c3226'
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#4c3226cc" className="bi bi-envelope" viewBox="0 0 16 16">
-      <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
-    </svg>
-  </button>
-  <input
-    name="email"
-    type="email"
-    placeholder="Enter Email"
-    style={{
-      background: '#ffdeb300',
-      color: '#000',
-      width: '100%',
-      border: '1px solid #4c3226ab',
-      marginBottom: '12px',
-      padding: '8px'
-    }}
-    value={input.email || ''}
-    onChange={handleChange}
-    required
-    onFocus={handleFocus}
-  />
-</div>
-{/* Error message outside the flex row */}
-{emailError && (
-  <p style={{ color: 'red', fontSize: '0.8em', marginTop: '-8px', marginBottom: '12px' }}>
-    {emailError}
-  </p>
-)}
+                                                <button
+                                                    style={{
+                                                    border: '1px solid #4c3226ab',
+                                                    borderRight: "0",
+                                                    padding: '10px',
+                                                    marginRight: '0px',
+                                                    marginBottom: "12px"
+                                                    }}
+                                                    className="btn btn-outline-secondary"
+                                                    type="button"
+                                                    color='#4c3226'
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#4c3226cc" className="bi bi-envelope" viewBox="0 0 16 16">
+                                                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z" />
+                                                    </svg>
+                                                </button>
+                                                <input
+                                                    name="email"
+                                                    type="email"
+                                                    placeholder="Enter Email"
+                                                    style={{
+                                                    background: '#ffdeb300',
+                                                    color: '#000',
+                                                    width: '100%',
+                                                    border: '1px solid #4c3226ab',
+                                                    marginBottom: '12px',
+                                                    padding: '8px'
+                                                    }}
+                                                    value={input.email || ''}
+                                                    onChange={handleChange}
+                                                    required
+                                                    onFocus={handleFocus}
+                                                />
+                                                </div>
+                                                {/* Error message outside the flex row */}
+                                                {emailError && (
+                                                <p style={{ color: 'red', fontSize: '0.8em', marginTop: '-8px', marginBottom: '12px' }}>
+                                                    {emailError}
+                                                </p>
+                                                )}
 
                                             <div style={{ display: 'flex' }}>
                                                 <button

@@ -126,6 +126,8 @@ const RadioPage = () => {
     setShowDropdown(false);
   };
 
+  
+
   const handleRefresh = async (event) => {
     await fetchCartData();
     setTimeout(() => {
@@ -245,11 +247,12 @@ const RadioPage = () => {
   );
 
   useEffect(() => {
-    if (findings?.length > 0) {
+    // Only set default if nothing is selected yet
+    if (findings?.length > 0 && !selectedFindings) {
       setSelectedFindings(findings[0].finding);
     }
   }, [findings]);
-
+  
 
 
   const fetchCartData = async () => {
@@ -303,7 +306,8 @@ const RadioPage = () => {
   
     // Live email validation
     if (name === "email") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+
       if (!emailRegex.test(value)) {
         setEmailError("Please enter a valid email address.");
       } else {
@@ -335,6 +339,17 @@ const RadioPage = () => {
       alert("Please fill in all User required fields.");
       return;
     }
+
+      // Check email validity before submit
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$/;
+      if (!emailRegex.test(form.email)) {
+        setEmailError("Please enter a valid email address.");
+        alert("Please enter a valid email address.");
+        return; // ❌ Stop form submission if invalid
+      } else {
+        setEmailError("");
+      }
+    
     try {
       let payload = {
         user: form,
@@ -436,12 +451,12 @@ const RadioPage = () => {
                           <div>
                             <IonButton shape='round' onClick={() => handleEditClick(item)} >
                               <div key={`${item?.item?._id}-${index}`}>
-                                <Ion-Icon name="create-outline" slot="icon-only" size='small' style={{ color: 'red' }}></Ion-Icon>
+                                <Ion-Icon name="create-outline" slot="icon-only" size='small' style={{ color: 'green' , marginTop:'2px', borderRadius:'50%', border:'1px solid green', padding:'5px' }}></Ion-Icon>
                               </div>
                             </IonButton>
                           </div>
                           <IonButton shape='round' onClick={() => handleRemoveItem(item?.item?._id)}>
-                            <Ion-Icon slot="icon-only" size='small' name="trash-outline" style={{ color: ' red' }}></Ion-Icon>
+                            <Ion-Icon slot="icon-only" size='small' name="trash-outline" style={{ color: ' red', borderRadius:'50%', border:'1px solid red', padding:'5px' }}></Ion-Icon>
                           </IonButton>
                         </div>
                       </div>
@@ -475,12 +490,12 @@ const RadioPage = () => {
                                   </h5>
                                 )}
                                 <h5 className="badge me-2" >Total Diamonds :{item?.item?.diaqty}</h5>
-                                <h5 className="badge me-2" >
-                                  {selectedType === "14K" && `14k weight : ${item?.item?.wgt14k?.toFixed(2)}`}
-                                </h5>
-                                <h5 className="badge me-2" >
-                                  {selectedType === "18K" && `18k weight : ${item?.item?.wgt18k?.toFixed(2)}`}
-                                </h5>
+                                {item?.metal?.startsWith("14K") && (
+                                  <h5 className="badge me-2">14k weight : {item?.item?.wgt14k?.toFixed(2)}</h5>
+                                )}
+                                {item?.metal?.startsWith("18K") && (
+                                  <h5 className="badge me-2">18k weight : {item?.item?.wgt18k?.toFixed(2)}</h5>
+                                )}
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', fontFamily: 'Poppins' }}>
                                 <IonButton fill="clear" size='large' slot="icon-only" onClick={() =>
@@ -499,7 +514,7 @@ const RadioPage = () => {
                                   </div>
                                 </IonButton>
                                 <span style={{
-                                  margin: '0px 2px', width: '16px', textAlign: 'center', color: 'black'
+                                  margin: '0px 2px', width: '16px', textAlign: 'center', minWidth: '30px',  color: 'black'
                                 }}>{item?.quantity}</span>
                                 < IonButton fill="clear" size='large' onClick={() =>
                                   handleQuantityChange(
@@ -529,10 +544,10 @@ const RadioPage = () => {
                                 value={item?.message || ''}
                                 onChange={(e) => handleTypeMessage(item?.item?._id, e, index)}
                                 onFocus={(e) => {
-                                  // Scroll to top
+                                  // Slight delay to wait for keyboard to appear
                                   setTimeout(() => {
-                                    e.target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                  }, 300); // wait for keyboard
+                                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                  }, 600); // increase delay if needed on mobile
                                 }}
                               ></textarea>
 
@@ -542,7 +557,10 @@ const RadioPage = () => {
                       </IonCardContent>
                     </IonCol>
                     <div>
-                      {openModalId === item?._id && (
+                    <IonModal
+                      isOpen={openModalId === item._id}
+                      onDidDismiss={() => setOpenModalId(null)}
+                    >                     
                         <div className="popup-1" >
                           <div className="popup popup235">
 
@@ -692,84 +710,84 @@ const RadioPage = () => {
                         </div>
 
                         <div>
-  <IonCol size='12'>
-    {/* Size Dropdown */}
-    {sortedSizes?.length > 0 &&
-      sortedSizes[0]?.sizes &&
-      sortedSizes[0]?.sizes?.length > 0 && (
-        <>
-          <label
-            style={{
-              fontWeight: '500',
-              fontSize: '16px',
-              color: 'rgb(76 50 38)',
-              display: 'block',
-            }}
-          >
-            Select Size
-          </label>
-          <select
-            value={selectSize}
-            onChange={(e) => handleSizeChange(e)}
-            style={{
-              marginTop: '5px',
-              fontSize: '15px',
-              border: '1px solid #7f7d7d',
-              width: '100%',
-              backgroundColor: '#fff6ec',
-              color: 'rgb(76 50 38)',
-              padding: '12px 15px',
-              margin: '10px 0',
-              width: '50%',
-            }}
-          >
-            {sortedSizes[0]?.sizes?.map((size) => (
-              <option key={size?._id} value={size?.size}>
-                {size?.size}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
+                            <IonCol size='12'>
+                              {/* Size Dropdown */}
+                              {sortedSizes?.length > 0 &&
+                                sortedSizes[0]?.sizes &&
+                                sortedSizes[0]?.sizes?.length > 0 && (
+                                  <>
+                                    <label
+                                      style={{
+                                        fontWeight: '500',
+                                        fontSize: '16px',
+                                        color: 'rgb(76 50 38)',
+                                        display: 'block',
+                                      }}
+                                    >
+                                      Select Size
+                                    </label>
+                                    <select
+                                      value={selectSize}
+                                      onChange={(e) => handleSizeChange(e)}
+                                      style={{
+                                        marginTop: '5px',
+                                        fontSize: '15px',
+                                        border: '1px solid #7f7d7d',
+                                        width: '100%',
+                                        backgroundColor: '#fff6ec',
+                                        color: 'rgb(76 50 38)',
+                                        padding: '12px 15px',
+                                        margin: '10px 0',
+                                        width: '50%',
+                                      }}
+                                    >
+                                      {sortedSizes[0]?.sizes?.map((size) => (
+                                        <option key={size?._id} value={size?.size}>
+                                          {size?.size}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </>
+                                )}
 
-    {/* Findings Dropdown */}
-    {findings?.length > 0 && (
-      <>
-        <label
-          style={{
-            fontWeight: '500',
-            fontSize: '16px',
-            color: 'rgb(76 50 38)',
-            marginBottom: '5px',
-            display: 'block',
-          }}
-        >
-          Select Finding
-        </label>
-        <select
-          value={selectedFindings || ''}
-          onChange={(e) => handleFindingsChange(e)}
-          style={{
-            marginTop: '5px',
-            fontSize: '15px',
-            border: '1px solid #7f7d7d',
-            backgroundColor: '#fff6ec',
-            color: 'rgb(76 50 38)',
-            padding: '10px 15px',
-            width: '70%',
-            borderRadius: '10px',
-          }}
-        >
-          {findings?.map((finding) => (
-            <option key={finding?._id} value={finding?.finding}>
-              {finding?.finding}
-            </option>
-          ))}
-        </select>
-      </>
-    )}
-  </IonCol>
-</div>
+                              {/* Findings Dropdown */}
+                              {findings?.length > 0 && (
+                                <>
+                                  <label
+                                    style={{
+                                      fontWeight: '500',
+                                      fontSize: '16px',
+                                      color: 'rgb(76 50 38)',
+                                      marginBottom: '5px',
+                                      display: 'block',
+                                    }}
+                                  >
+                                    Select Finding
+                                  </label>
+                                  <select
+                                    value={selectedFindings || ''}
+                                    onChange={(e) => handleFindingsChange(e)}
+                                    style={{
+                                      marginTop: '5px',
+                                      fontSize: '15px',
+                                      border: '1px solid #7f7d7d',
+                                      backgroundColor: '#fff6ec',
+                                      color: 'rgb(76 50 38)',
+                                      padding: '10px 15px',
+                                      width: '70%',
+                                      borderRadius: '10px',
+                                    }}
+                                  >
+                                    {findings?.map((finding) => (
+                                      <option key={finding?._id} value={finding?.finding}>
+                                        {finding?.finding}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </>
+                              )}
+                            </IonCol>
+                          </div>
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <IonButton onClick={(e) => handleSaveChanges(e, index)} style={{ width: '100%', margin: '15px 0', background: '#f3a41c', }} expand="full">Save</IonButton>
@@ -777,7 +795,8 @@ const RadioPage = () => {
                             </div>
                           </div>
                         </div>
-                      )}
+                        </IonModal>
+
                     </div>
 
                   </IonRow>
@@ -867,12 +886,14 @@ const RadioPage = () => {
                     color="secondary"
                     required
                     onFocus={handleFocus}
+                    
+                    
                   />
-               {emailError && (
-  <p style={{ color: 'red', fontSize: '0.8em', marginTop: '4px' }}>
-    {emailError}
-  </p>
-)}
+                   {emailError && (
+                        <p style={{ color: 'red', fontSize: '0.8em', marginTop: '4px' }}>
+                          {emailError}
+                        </p>
+                      )}
 
                   <IonLabel position="stacked" className="modal-label">
                     Company Name:<span className="required">*</span>
@@ -885,6 +906,12 @@ const RadioPage = () => {
                     onIonChange={handleInputChange}
                     required
                     onFocus={handleFocus}
+                    onIonInput={(e) => {
+                      const input = e.target.value;
+                      if (input.startsWith(" ")) {
+                        e.target.value = input.replace(/^\s+/, ""); // remove starting spaces
+                      }
+                    }}
                   />
 
                   <IonLabel position="stacked" className="modal-label">
@@ -898,16 +925,25 @@ const RadioPage = () => {
                     name="referenceName"
                     required
                     onFocus={handleFocus}
+                    onIonInput={(e) => {
+                      const input = e.target.value;
+                      if (input.startsWith(" ")) {
+                        e.target.value = input.replace(/^\s+/, ""); // remove starting spaces
+                      }
+                    }}
                   />
 
-                  <IonButton
-                    expand="full"
-                    type="submit"
-                    className="modal-submit-btn"
-                  >
-                    Confirm Order
-                    <span className="subtext"> (Ask for Quotation)</span>
-                  </IonButton>
+              <IonButton
+                expand="full"
+                type="submit"
+                className="modal-submit-btn"
+              >
+                <div className="btn-text">
+                  <span className="main-text">Confirm Order</span>
+                  <span className="subtext">(Ask for Quotation)</span>
+                </div>
+              </IonButton>
+
                 </form>
               </IonCardContent>
             </div>

@@ -25,7 +25,7 @@ import { toast } from "react-toastify";
 
 const WishlistPage = () => {
   const [counter, setCounter] = useState(0);
-  const { wishData, setWishData } = useContext(DataContext);
+  const { wishData, removeFromWishlist, fetchWishlist } = useContext(DataContext);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
@@ -36,17 +36,20 @@ const WishlistPage = () => {
     }
   };
 
-  const handleRemove = (id) => {
+  
+
+  const handleRemove = async (id) => {
     try {
-      const item = wishData?.filter((item) => item._id !== id);
-      setWishData(item);
-      setToastMessage('Item Remove');
+      await removeFromWishlist(id);
+      setToastMessage("Item removed from wishlist");
       setShowToast(true);
-    }
-    catch (error) {
-      toast.error(error?.response?.data?.error);
+      await fetchWishlist(); 
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.error || "Error removing item");
     }
   };
+
 
 
   const handleView = (data) => {
@@ -82,10 +85,10 @@ const WishlistPage = () => {
                             <IonButton shape='round' onClick={() => {
                               handleView(item);
                             }}>
-                              <Ion-Icon slot="icon-only" size='small' name="eye-outline" style={{ color: 'green' }}></Ion-Icon>
+                              <Ion-Icon slot="icon-only" size='small' name="eye-outline" style={{ color: 'green' ,  borderRadius:'50%', border:'1px solid green', padding:'5px' }}></Ion-Icon>
                             </IonButton>
                             <IonButton shape='round' onClick={() => handleRemove(item?._id)}>
-                              <Ion-Icon slot="icon-only" size='small' name="trash-outline" style={{ color: ' red' }}></Ion-Icon>
+                              <Ion-Icon slot="icon-only" size='small' name="trash-outline" style={{ color: ' red', borderRadius:'50%', border:'1px solid red', padding:'5px' }}></Ion-Icon>
                             </IonButton>
                           </div>
                         </div>

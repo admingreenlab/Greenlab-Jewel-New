@@ -53,7 +53,7 @@ function CategoryPage() {
     const [loading, setLoading] = useState(null);
     const isFetching = useRef(false)
     const [selectedMetal, setSelectedMetal] = useState("");
-    const { wishData, setWishData } = useContext(DataContext);
+    const { wishData, fetchWishlist, addToWishlist, removeFromWishlist } = useContext(DataContext);
     const [checkedItems, setCheckedItems] = useState({});
     const [liked, setLiked] = useState(false);
     const [cart, setCart] = useState([]);
@@ -99,7 +99,7 @@ function CategoryPage() {
                 itemId: item._id,
                 quantity: 1,
                 metal: `${item.metal}-${selectedMetalForItem}-GOLD`.toUpperCase(),
-                diamondQuality: 'DEF VVS+',
+                diamondQuality: 'EF VS+',
                 colorstone: item.colorstone,
                 size: item.size,
                 itemtype: item.itemtype,
@@ -126,40 +126,45 @@ function CategoryPage() {
     };
 
 
-    const handleItemCheckboxChange = (id, data) => {
-        setLiked(!liked);
-        setCheckedItems((prevCheckedItems) => ({
-            ...prevCheckedItems,
-            [id]: !prevCheckedItems[id],
-        }));
+    const user = JSON.parse(localStorage.getItem('user')); // stored user object
+    const userId = user?._id;
 
-        const storedList = JSON.parse(localStorage.getItem("wishList")) || [];
-        const itemIndex = storedList.findIndex((item) => item._id === data._id);
-
-        if (itemIndex === -1) {
-            storedList.push(data);
-        } else {
-            storedList.splice(itemIndex, 1);
+    const handleItemCheckboxChange = async (itemId) => {
+        const isInWishlist = checkedItems[itemId];
+        try {
+            if (isInWishlist) {
+                await removeFromWishlist(itemId);
+                setCheckedItems((prev) => {
+                    const updated = { ...prev };
+                    delete updated[itemId];
+                    return updated;
+                });
+                await fetchWishlist(); // ✅ Refresh wishlist data from backend
+            } else {
+                await addToWishlist(itemId);
+                setCheckedItems((prev) => ({ ...prev, [itemId]: true }));
+                await fetchWishlist(); // optional, if you want to keep it fully synced
+            }
+        } catch (error) {
+            console.error("Error toggling wishlist:", error);
         }
-        setWishData(storedList);
     };
 
+    // Sync checked state with wishlist data
     useEffect(() => {
-        const newCheckedItems = {};
+        const newChecked = {};
         wishData?.forEach((item) => {
-            if (item?._id) {
-                newCheckedItems[item._id] = true;
-            }
+            newChecked[item._id] = true;
         });
-
-        setCheckedItems(newCheckedItems);
-    }, []);
+        setCheckedItems(newChecked);
+    }, [wishData]);
 
 
     useEffect(() => {
         if (id) {
             fetchCategoryData();
             handleAddToCart()
+            fetchWishlist();
         }
     }, [id]);
 

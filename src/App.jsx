@@ -449,31 +449,69 @@ function Apps() {
               <IonItem>
                 <IonInput type='text' label="Username : " placeholder=" Enter text " fill="clear"
                   color="secondary" value={username}
-                  onBlur={handleChangeUsername}>
+                  onBlur={handleChangeUsername}
+                  
+                  onIonInput={(e) => {
+                    const input = e.detail.value || "";
+                    if (input.startsWith(" ")) {
+                      e.target.value = input.replace(/^\s+/, ""); // remove starting spaces
+                    }
+                  }}
+                  >
                 </IonInput>
               </IonItem>
               <IonItem>
                 <IonInput type='tel' label="Mobile No : " placeholder=" Enter number " fill="clear"
                   color="secondary" value={mobileNo}
-                  onBlur={handleChangePhone}>
+                  onBlur={handleChangePhone}
+                  onIonInput={(e) => {
+                    const input = e.detail.value || "";
+                    if (input.startsWith(" ")) {
+                      e.target.value = input.replace(/^\s+/, ""); // remove starting spaces
+                    }
+                  }}
+                  >
+                    
                 </IonInput>
               </IonItem>
               <IonItem>
                 <IonInput type='text' label="Email : " placeholder=" Enter Email " fill="clear"
                   color="secondary" value={email}
-                  onBlur={handleChangeemail}>
+                   pattern="^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,10}$"
+                  onBlur={handleChangeemail}
+                  onIonInput={(e) => {
+                    const input = e.detail.value || "";
+                    if (input.startsWith(" ")) {
+                      e.target.value = input.replace(/^\s+/, ""); // remove starting spaces
+                    }
+                  }}
+                  >
                 </IonInput>
               </IonItem>
               <IonItem>
                 <IonInput type='text' label="Refrence Name : " placeholder="Enter Refrence " fill="clear"
                   color="secondary" value={refrence}
-                  onBlur={handleChangrefrence}>
+                  onBlur={handleChangrefrence}
+                  onIonInput={(e) => {
+                    const input = e.detail.value || "";
+                    if (input.startsWith(" ")) {
+                      e.target.value = input.replace(/^\s+/, ""); // remove starting spaces
+                    }
+                  }}
+                  >
                 </IonInput>
               </IonItem>
               <IonItem>
                 <IonInput type='text' label="Company Name : " placeholder="Enter Company " fill="clear"
                   color="secondary" value={company}
-                  onBlur={handleChangcompany}>
+                  onBlur={handleChangcompany}
+                  onIonInput={(e) => {
+                    const input = e.detail.value || "";
+                    if (input.startsWith(" ")) {
+                      e.target.value = input.replace(/^\s+/, ""); // remove starting spaces
+                    }
+                  }}
+                  >
                 </IonInput>
               </IonItem>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

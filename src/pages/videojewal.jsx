@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,useRef, useEffect } from 'react';
 import {
     IonContent,
     IonPage,
@@ -54,13 +54,24 @@ const Videojewal = () => {
 
     const handleCheckboxChange = (itemId) => {
         setSelectedItems(prevSelected => {
+            let updatedSelected;
             if (prevSelected.includes(itemId)) {
-                return prevSelected.filter(id => id !== itemId);
+                updatedSelected = prevSelected.filter(id => id !== itemId);
             } else {
-                return [...prevSelected, itemId];
+                updatedSelected = [...prevSelected, itemId];
             }
+    
+            // Update the Select All checkbox
+            if (updatedSelected.length === filteredItems.map(item => item._id).length) {
+                setSelectAll(true);
+            } else {
+                setSelectAll(false);
+            }
+    
+            return updatedSelected;
         });
     };
+    
 
     useEffect(() => {
         fetchVideoData();
@@ -78,97 +89,96 @@ const Videojewal = () => {
     const handleSelectAllChange = () => {
         setSelectAll(prevSelectAll => {
             const newSelectAll = !prevSelectAll;
-            setSelectAll(newSelectAll);
-
+    
             if (newSelectAll) {
-                setSelectedItems(data.map(item => item._id));
+                // Only select the items on the current page
+                const currentPageIds = currentItems.map(item => item._id);
+                setSelectedItems(prevSelected => {
+                    // Merge with already selected items outside current page
+                    const otherSelected = prevSelected.filter(id => !currentPageIds.includes(id));
+                    return [...otherSelected, ...currentPageIds];
+                });
             } else {
-                // Deselect all
-                setSelectedItems([]);
+                // Deselect only the items on the current page
+                const currentPageIds = currentItems.map(item => item._id);
+                setSelectedItems(prevSelected => prevSelected.filter(id => !currentPageIds.includes(id)));
             }
-
+    
             return newSelectAll;
         });
     };
-
-
+    
+    
+    
+    const handlePDFDownload = async () => {
+        setLoadings(true);
+        try {
+            // Determine items to download
+            const itemsInCategory = selectedOption
+                ? data.filter(item => item.type === selectedOption)
+                : data;
+    
+            const idsToDownload = selectedItems.length > 0
+                ? selectedItems.filter(id => itemsInCategory.some(item => item._id === id))
+                : itemsInCategory.map(item => item._id);
+    
+            // Validation: limit to 40 items
+            if (idsToDownload.length > 40) {
+                alert("You can only download a maximum of 40 items at a time for this category.");
+                setLoadings(false);
+                return;
+            }
+    
+            // Request PDF from server
+            const response = await jwtAuthAxios.post(
+                '/master/downloadpdf',
+                { ids: idsToDownload, category: selectedOption },
+                { responseType: 'blob' }
+            );
+    
+            if (response.status === 200) {
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+    
+                // iOS native share
+                if (
+                    navigator.canShare &&
+                    navigator.canShare({ files: [new File([blob], 'file.pdf', { type: 'application/pdf' })] })
+                ) {
+                    navigator
+                        .share({
+                            files: [new File([blob], 'file.pdf', { type: 'application/pdf' })],
+                            title: 'Download PDF',
+                            text: 'Here is your PDF',
+                        })
+                        .catch(err => console.error('Share failed:', err));
+                } else {
+                    // Fallback for all other browsers
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', 'file.pdf'); // Filename
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    window.URL.revokeObjectURL(url);
+                }
+            } else {
+                console.error('Download failed: Status', response.status);
+            }
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+        } finally {
+            setLoadings(false);
+        }
+    };
+    
+    
+      
+      
     const getHoverImageUrl = (filePath) => {
         const filename = filePath.split('/')[5].split('?')[0];
         return `https://console.studio360.tech/explore/e/${filename}?mode=p`; // adjust the URL
-    };
-
-    const handlePDFDownload = async () => {
-        setLoadings(true);
-      
-        try {
-          const idsToDownload = selectedItems.length > 0 ? selectedItems : data.map(item => item._id);
-      
-          const response = await jwtAuthAxios.post(
-            '/master/downloadpdf',
-            {
-              ids: idsToDownload,
-              category: selectedOption,
-            },
-            { responseType: 'blob' }
-          );
-      
-          if (response.status === 200) {
-            const blob = new Blob([response.data], { type: 'application/pdf' });
-      
-            const base64data = await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                if (typeof reader.result === 'string') {
-                  const base64 = reader.result.split(',')[1];
-                  resolve(base64);
-                } else {
-                  reject(new Error('FileReader did not return a string'));
-                }
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-      
-            const fileName = `video_files_${Date.now()}.pdf`;
-      
-            await Filesystem.writeFile({
-              path: fileName,
-              data: base64data,
-              directory: Directory.Documents,
-            });
-      
-            const fileUriResult = await Filesystem.getUri({
-              directory: Directory.Documents,
-              path: fileName,
-            });
-      
-            const path = fileUriResult.uri;
-      
-            setLoadings(false); // Dismiss spinner before sharing
-      
-            // Wait a tiny bit to ensure UI updates
-            await new Promise(resolve => setTimeout(resolve, 300));
-      
-            // Share PDF (works on iOS)
-            await Share.share({
-              title: 'Share PDF',
-              text: 'Here is the PDF file you requested.',
-              url: path,
-              dialogTitle: 'Share this PDF',
-            });
-      
-            console.log('Share dialog shown successfully');
-          } else {
-            setLoadings(false);
-            console.error('Failed to download PDF:', response.statusText);
-          }
-        } catch (error) { 
-          setLoadings(false);
-          console.error('Error downloading PDF:', error);
-        }
-      };
-      
-    
+    }; 
 
     const handleRefresh = async (event) => {
         await fetchVideoData();
@@ -194,13 +204,35 @@ const Videojewal = () => {
         setCurrentPage(1);
     };
 
+    const handleClearAll = () => {
+        setSelectedItems([]);  // Clear all selected IDs
+        setSelectAll(false);   // Uncheck the "Select All" box
+    };
+    
+    useEffect(() => {
+        if (contentRef.current) {
+          const scrollToTop = async () => {
+            const el = await contentRef.current.getScrollElement();
+            el.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+          scrollToTop();
+        }
+      }, [currentPage]);
+
+    const contentRef = useRef(null);
+    
+      const handleupper = () => {
+        console.log("upper");
+        contentRef.current?.scrollToTop(1000); // 500ms smooth
+      }
+
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <IonPage>
-            <IonContent style={{ background: "rgba(188, 119, 0, 0.07)" }}>
+            <IonContent ref={contentRef} style={{ background: "rgba(188, 119, 0, 0.07)" }}>
                 {/* <IonRefresher slot="fixed" onIonRefresh={handleRefresh} style={{ marginTop: '20px' }}>
                     <IonRefresherContent
                         pullingIcon={chevronDownCircleOutline}
@@ -210,60 +242,71 @@ const Videojewal = () => {
                 <div className="pb-3" style={{marginTop:'70px'}}>
                     <IonGrid>
                         <IonRow className="ion-align-items-center mb-4">
-                            <IonCol size-sm="3" size="3" >
-                                {/* <h4 className="breadcrumb-item" style={{ fontFamily: 'Circular' }}>
-                                    Jewellery Assets
-                                </h4> */}
+                        <IonCol size="12">
+                            <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                flexWrap: 'wrap', // responsive layout
+                                padding: '0 10px',
+                            }}
+                            >
+                            {/* 🏠 Home Icon */}
+                            <a href="/home" size="small">
+                                <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="26"
+                                height="26"
+                                fill="#4c3226"
+                                className="bi bi-house-door"
+                                viewBox="0 0 16 16"
+                                >
+                                <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z" />
+                                </svg>
+                            </a>
 
-                                <a href="/home" style={{ padding: '0', }}>
-                                    <IonImg
-                                        className='logo'
-                                        src="/img/logo.svg"
-                                        style={{ width: '72px', height: '40px' }}
-                                    ></IonImg>
-                                </a>
-                            </IonCol>
+                            {/* 🔽 Select Dropdown */}
+                            <select
+                                id="simple-select"
+                                value={selectedOption}
+                                onChange={handleSelectChange}
+                                style={{
+                                padding: '0 10px',
+                                backgroundColor: '#fff',
+                                color: 'black',
+                                height: '48px',
+                                borderRadius: '9px',
+                                fontSize: '16px',
+                                width: '220px',
+                                border: '1px solid #ccc',
+                                }}
+                            >
+                                <option value="">All Select Jewellery</option>
+                                {getUniqueCategories().map((type, index) => (
+                                <option key={index} value={type}>
+                                    {type}
+                                </option>
+                                ))}
+                            </select>
 
-                            <IonCol size-sm="9" size="9">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'end' }}>
-                                    <div>
-                                        <select
-                                            id="simple-select"
-                                            value={selectedOption}
-                                            onChange={handleSelectChange}
-                                            style={{
-                                                marginLeft: 'auto',
-                                                padding: '0 10px',
-                                                backgroundColor: '#fff',
-                                                border: "1px solid black",
-                                                color: 'black',
-                                                border: 'none',
-                                                height:"48px",
-                                                borderRadius: '9px',
-                                                fontSize:"16px",
-                                                width: '175px',
-                                                boxSizing: 'border-box',
-                                              }}
-                                        >
-                                            <option value="">All Select Jewellery</option>
-                                            {getUniqueCategories().map((type, index) => (
-                                                <option key={index} value={type}>
-                                                    {type}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <IonButton color='secondary' style={{ height: '40px', width: '40px' }} onClick={handlePDFDownload}>
-                                        <ion-icon name="download-outline" slot="icon-only" ></ion-icon>
-                                        <IonLoading
-                                            isOpen={loadings}
-                                            message="Downloading PDF..."
-                                            spinner="circles"
-                                            />
-                                    </IonButton>
-                                </div>
-                            </IonCol>
+                            {/* ⬇️ Download Button */}
+                            <IonButton
+                                color="secondary"
+                                style={{ height: '48px', width: '48px' }}
+                                onClick={handlePDFDownload}
+                            >
+                                <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+                                <IonLoading
+                                isOpen={loadings}
+                                message="Downloading PDF..."
+                                spinner="circles"
+                                />
+                            </IonButton>
+                            </div>
+                        </IonCol>
                         </IonRow>
+
                         <IonRow>
                             <IonCol>
                                 <div style={{ marginTop: '15px', paddingTop: '10px', borderTop: '1.6px solid #00000047', display: 'flex', alignItems: "center", justifyContent: 'space-between' }}>
@@ -277,20 +320,36 @@ const Videojewal = () => {
                                 </div>
                             </IonCol>
                         </IonRow>
-                        <IonRow>
-                        <IonCol>
-                        <div className='' style={{margin:'0px 0px 10px 5px'}}>
+                        <IonRow style={{marginBottom:'15px'}}>
+                        <IonCol style={{display:'flex', justifyContent:'space-between',alignItems:'center'}}>
+                        <div className='' style={{margin:'0px 0px 0px 0px'}}>
                             <label style={{color:'#4C3226', fontSize:'17px'}}>Select All Box : </label>
                             <input
-                                style={{ margin: '-10px 0px 13px 0px', width:'20px', height:'20px'}}
+                                style={{ margin: '-10px 0px 3px 0px', width:'20px', height:'20px'}}
                                 type='checkbox'
-                                checked={selectAll}
+                                checked={currentItems.every(item => selectedItems.includes(item._id))}
                                 onChange={handleSelectAllChange}
                             />
-                        </div>
+                            
+                                    </div>
+                                    <IonButton 
+                            size="small"
+                            onClick={handleClearAll}
+                            style={{
+                                backgroundColor: '#B87700', // 🔸 your theme color (change if needed)
+                                color: '#fff',              // white text
+                                borderRadius: '6px',        // optional: smoother look
+                                fontWeight: '500'           // optional: bold text
+                            }}
+                            >
+                            Clear All
+                            </IonButton>
+
                             </IonCol>
                         </IonRow>
-                        
+                                <IonButton style={{margin:'0px 0px 10px 0px'}} className='left_bottom_fix' shape='round' size='large' color='secondary' onClick={handleupper}>
+                                                                <ion-icon name="arrow-up-outline" slot="icon-only"></ion-icon>
+                                </IonButton>
                         <IonRow>
                             {currentItems.map(item => (
                                 <IonCol size="12" size-sm="6" size-md="4" size-lg="2" key={item._id}>
@@ -375,7 +434,7 @@ const Videojewal = () => {
                                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                         disabled={currentPage === 1}
                                     >
-                                        <ion-icon name="arrow-back-circle-outline"></ion-icon>
+                                        <ion-icon name="arrow-back-circle-outline" style={{color:'#000'}}></ion-icon>
                                     </IonButton>
                                     {Array.from({ length: totalPages }, (_, index) => (
                                         <IonButton
@@ -384,7 +443,7 @@ const Videojewal = () => {
                                                 backgroundColor: index + 1 === currentPage ? '#f3a41c' : 'transparent',
                                                 color: index + 1 === currentPage ? '#fff' : '#000',
                                                 borderRadius: index + 1 === currentPage ? '100%' : '100%',
-                                                padding: index + 1 === currentPage ? '4px 7px' : '4px 7px',
+                                                padding: index + 1 === currentPage ? '2px 7px' : '2px 7px',
 
                                             }}
                                             onClick={() => setCurrentPage(index + 1)}
@@ -396,7 +455,7 @@ const Videojewal = () => {
                                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                         disabled={currentPage === totalPages}
                                     >
-                                        <ion-icon name="arrow-forward-circle-outline" ></ion-icon>
+                                        <ion-icon name="arrow-forward-circle-outline" style={{color:'#000'}}></ion-icon>
                                     </IonButton>
                                 </IonButtons>
                             </IonCol>

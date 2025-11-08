@@ -70,7 +70,7 @@ function Product() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(null);
     const [diamondGroup, setDiamondGroup] = useState([]);
-    const { wishData, setWishData } = useContext(DataContext);
+    const {fetchWishlist, wishData, addToWishlist, removeFromWishlist } = useContext(DataContext);
     const [checkedItems, setCheckedItems] = useState({});
     const [liked, setLiked] = useState(false);
     const [sizeDetails, setSizeDetails] = useState([]);
@@ -251,34 +251,36 @@ function Product() {
     // useEffect(() => {
     // }, [selectedType]);
 
-    const handleItemCheckboxChange = (id, data) => {
-        setLiked(!liked);
-        setCheckedItems((prevCheckedItems) => ({
-            ...prevCheckedItems,
-            [id]: !prevCheckedItems[id],
-        }));
-
-        const storedList = JSON.parse(localStorage.getItem("wishList")) || [];
-        const itemIndex = storedList.findIndex((item) => item._id === data._id);
-
-        if (itemIndex === -1) {
-            storedList.push(data);
-        } else {
-            storedList.splice(itemIndex, 1);
+    const handleItemCheckboxChange = async (itemId) => {
+        const isInWishlist = checkedItems[itemId];
+        try {
+          if (isInWishlist) {
+            await removeFromWishlist(itemId);
+            setCheckedItems((prev) => {
+              const updated = { ...prev };
+              delete updated[itemId];
+              return updated;
+            });
+            await fetchWishlist(); // ✅ Refresh wishlist data from backend
+          } else {
+            await addToWishlist(itemId);
+            setCheckedItems((prev) => ({ ...prev, [itemId]: true }));
+            await fetchWishlist(); // optional, if you want to keep it fully synced
+          }
+        } catch (error) {
+          console.error("Error toggling wishlist:", error);
         }
-        setWishData(storedList);
-    };
-
-    useEffect(() => {
-        const newCheckedItems = {};
-        wishData?.forEach((item) => {
-            if (item?._id) {
-                newCheckedItems[item._id] = true;
-            }
-        });
-
-        setCheckedItems(newCheckedItems);
-    }, []);
+      };
+      
+      
+        
+          useEffect(() => {
+          const newChecked = {};
+          wishData?.forEach((item) => {
+            newChecked[item._id] = true;
+          });
+          setCheckedItems(newChecked);
+        }, [wishData]);
 
     const handleTypeMessage = (e) => {
         setTypeMessage(e.target.value);
@@ -662,6 +664,16 @@ function Product() {
                                                         </IonSelect>
                                                     )} */}
                                                     {sortedSizes?.length > 0 && (
+                                                        <>
+                                                          <label
+                                                            style={{
+                                                                fontWeight: '500',
+                                                                fontSize: '16px',
+                                                                color: 'rgb(76 50 38)',
+                                                                display: 'block',
+                                                                marginBottom: '5px'
+                                                            }}
+                                                        > Select Size</label>
                                                         <select
                                                             value={selectSize}
                                                             onChange={(e) => handleSizeChange(e)}
@@ -684,10 +696,23 @@ function Product() {
                                                                 </option>
                                                             ))}
                                                         </select>
+                                                        </>
                                                     )}
                                                 </IonCol>
                                                 <IonCol size='12'>
                                                     {findings?.length > 0 && (
+                                                        <>
+                                                         <label
+                                                            style={{
+                                                                fontWeight: '500',
+                                                                fontSize: '16px',
+                                                                color: 'rgb(76 50 38)',
+                                                                display: 'block',
+                                                                marginBottom: '5px'
+                                                            }}
+                                                        >
+                                                            Select Finding
+                                                        </label>
                                                         <select
                                                             value={selectedFindings || (findings.length > 0 ? findings[0].finding : "")}
                                                             onChange={(e) => handleFindingsChange(e)}
@@ -709,6 +734,7 @@ function Product() {
                                                                 </option>
                                                             ))}
                                                         </select>
+                                                        </>
                                                     )}
 
                                                 </IonCol>
@@ -728,7 +754,14 @@ function Product() {
                                                         background: 'transparent',
                                                         marginTop: '10px'
                                                     }}
-                                                ></textarea>
+                                                    onFocus={(e) => {
+                                                        // Slight delay to wait for keyboard to appear on mobile
+                                                        setTimeout(() => {
+                                                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                        }, 600); // increase delay if needed
+                                                    }}
+                                                    ></textarea>
+
 
                                             </IonRow>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
